@@ -21,14 +21,13 @@ public class Commands
         if (args.Parameters.Count == 0)
         {
             HelpCmd(args.Player);
-            args.Player.SendSuccessMessage($"您的垃圾桶启用状态为：[c/92C5EC:{config.Enabled}]");
             if (!config.Enabled)
             {
                 args.Player.SendSuccessMessage($"请输入该指令开启→: [c/92C5EC:/air on] ");
             }
             else
             {
-                args.Player.SendSuccessMessage($"请输入该指令添加物品→: [c/92C5EC:/air add 土块] ");
+                args.Player.SendSuccessMessage($"您的垃圾桶监听状态为：[c/92C5EC:{config.TrashItem}]");
             }
             return;
         }
@@ -52,7 +51,35 @@ public class Commands
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "clear")
         {
             config.ItemName.Clear();
-            args.Player.SendSuccessMessage($"已清理[c/92C5EC: {args.Player.Name} ]的垃圾桶");
+            args.Player.SendSuccessMessage($"已清理[c/92C5EC: {args.Player.Name} ]的自动垃圾桶表");
+            AutoAirItem.Config.Write();
+            return;
+        }
+
+        if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "yes")
+        {
+            config.ItemName.Add(args.TPlayer.inventory[args.TPlayer.selectedItem].Name);
+            AutoAirItem.Config.Write();
+            args.Player.SendSuccessMessage("手选物品 [c/92C5EC:{0}] 已加入自动垃圾桶中! 脱手即清!", args.TPlayer.inventory[args.TPlayer.selectedItem].Name);
+            return;
+        }
+
+        if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "auto")
+        {
+            bool isEnabled = config.TrashItem;
+            config.TrashItem = !isEnabled;
+            string Mess = isEnabled ? "禁用" : "启用";
+            args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 的垃圾桶位格监听功能已[c/92C5EC:{Mess}]");
+            AutoAirItem.Config.Write();
+            return;
+        }
+
+        if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "mess")
+        {
+            bool isEnabled = config.Mess;
+            config.Mess = !isEnabled;
+            string Mess = isEnabled ? "禁用" : "启用";
+            args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:{Mess}]");
             AutoAirItem.Config.Write();
             return;
         }
@@ -125,6 +152,9 @@ public class Commands
              "/air on —— 开启|关闭垃圾桶功能\n" +
              "/air list —— 列出自己的垃圾桶\n" +
              "/air clear —— 清理垃圾桶\n" +
+             "/air yes —— 将手持物品加入垃圾桶\n" +
+             "/air auto —— 监听垃圾桶位格开关\n" +
+             "/air mess —— 开启|关闭清理消息\n" +
              "/air add 或 del 物品名字 —— 添加|删除《自动垃圾桶》的物品", Color.AntiqueWhite);
         }
     }

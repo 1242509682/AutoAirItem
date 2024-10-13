@@ -18,9 +18,6 @@ internal class Configuration
     [JsonProperty("清理数据周期/小时", Order = 1)]
     public long timer { get; set; } = 24;
 
-    [JsonProperty("自动清理提示", Order = 2)]
-    public bool Mess { get; set; } = true;
-
     [JsonProperty("清理垃圾速度", Order = 3)]
     public int UpdateRate = 60;
 
@@ -33,7 +30,7 @@ internal class Configuration
     {
         Items = new List<ItemData>
             {
-                new ItemData("羽学",false,default,new List<string>()),
+                new ItemData("羽学",true,true,true,default,new List<string>()),
             };
     }
     #endregion
@@ -47,15 +44,21 @@ internal class Configuration
         public DateTime LoginTime { get; set; }
         [JsonProperty("垃圾桶开关", Order = 3)]
         public bool Enabled { get; set; } = false;
-        [JsonProperty("垃圾桶物品", Order = 4)]
-        public List<string> ItemName { get; set; } = new List<string>();
+        [JsonProperty("监听垃圾桶", Order = 4)]
+        public bool TrashItem { get; set; } = false;
+        [JsonProperty("自动清理提示", Order = 5)]
+        public bool Mess { get; set; } = true;
+        [JsonProperty("垃圾桶物品", Order = 6)]
+        public List<string> ItemName { get; set; }
 
-        public ItemData(string name = "", bool enabled = false, DateTime time = default, List<string> item = null!)
+        public ItemData(string name = "", bool enabled = false,bool trash = false,bool mess = false, DateTime time = default, List<string> item = null!)
         {
             Name = name ?? "";
             Enabled = enabled;
             LoginTime = time;
-            ItemName = item;
+            TrashItem = trash;
+            Mess = mess;
+            ItemName = item ?? new List<string>(); ;
         }
     }
     #endregion

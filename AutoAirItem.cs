@@ -4,7 +4,6 @@ using TerrariaApi.Server;
 using TShockAPI;
 using TShockAPI.Hooks;
 
-
 namespace AutoAirItem;
 
 [ApiVersion(2, 1)]
@@ -14,7 +13,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 0, 1);
+    public override Version Version => new Version(1, 0, 2);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
@@ -69,7 +68,9 @@ public class AutoAirItem : TerrariaPlugin
             {
                 Name = plr.Name,
                 Enabled = false,
+                TrashItem = false,
                 LoginTime = DateTime.Now,
+                Mess = true,
                 ItemName = new List<string>()
             });
         }
@@ -86,6 +87,7 @@ public class AutoAirItem : TerrariaPlugin
     {
         var plr = TShock.Players[args.Who];
         var list = Config.Items.FirstOrDefault(x => x.Name == plr.Name);
+        if (!Config.Open) return;
         if (Config.Items.Any(item => item.Name == plr.Name))
         {
             list!.LoginTime = DateTime.Now;
@@ -116,14 +118,14 @@ public class AutoAirItem : TerrariaPlugin
             var list = Config.Items.FirstOrDefault(x => x.Name == plr.Name);
             if (list != null && list.Enabled && Timer % Config.UpdateRate == 0)
             {
-                AutoAirItems(plr, list.ItemName);
+                AutoAirItems(plr, list.ItemName, list.TrashItem,list.Mess);
             }
         }
     }
     #endregion
 
     #region 自动清理物品方法
-    public static bool AutoAirItems(TSPlayer plr, List<string> List)
+    public static bool AutoAirItems(TSPlayer plr, List<string> List, bool trash,bool mess)
     {
         Player player = plr.TPlayer;
 
@@ -131,12 +133,24 @@ public class AutoAirItem : TerrariaPlugin
         {
             var item = player.inventory[i];
             var id = TShock.Utils.GetItemById(item.type).netID;
+            var trashItem = player.trashItem;
+
+            if (trash)
+            {
+                if (!trashItem.IsAir && !List.Contains(trashItem.Name))
+                {
+                    List.Add(trashItem.Name);
+                    Config.Write();
+                    plr.SendMessage($"已将 '[c/92C5EC:{trashItem.Name}]'添加到自动垃圾桶表", 255, 246, 158);
+                }
+            }
+
             if (item != null && List.Contains(item.Name) && item.Name != player.inventory[player.selectedItem].Name)
             {
                 item.TurnToAir();
                 plr.SendData(PacketTypes.PlayerSlot, null, plr.Index, PlayerItemSlotID.Inventory0 + i);
 
-                if (Config.Mess)
+                if (mess)
                 {
                     var itemName = Lang.GetItemNameValue(id);
                     plr.SendMessage($"【自动垃圾桶】已将 '[c/92C5EC:{itemName}]'从您的背包中移除", 255, 246, 158);
