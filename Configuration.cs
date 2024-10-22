@@ -15,52 +15,22 @@ internal class Configuration
     [JsonProperty("插件开关", Order = -14)]
     public bool Open { get; set; } = true;
 
-    [JsonProperty("清理数据周期/小时", Order = 1)]
+    [JsonProperty("清理垃圾速度", Order = -2)]
+    public int UpdateRate = 10;
+
+    [JsonProperty("广告开关", Order = -1)]
+    public bool Enabled { get; set; } = true;
+
+    [JsonProperty("广告内容", Order = -1)]
+    public string Advertisement { get; set; } = $"\n[i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]";
+
+    [JsonProperty("是否清理数据", Order = 1)]
+    public bool ClearData { get; set; } = true;
+
+    [JsonProperty("清理数据周期/小时", Order = 2)]
     public long timer { get; set; } = 24;
 
-    [JsonProperty("清理垃圾速度", Order = 3)]
-    public int UpdateRate = 60;
 
-    [JsonProperty("玩家数据表", Order = 4)]
-    public List<ItemData> Items { get; set; } = new List<ItemData>();
-    #endregion
-
-    #region 预设参数方法
-    public void Ints()
-    {
-        Items = new List<ItemData>
-            {
-                new ItemData("羽学",true,true,true,default,new List<string>()),
-            };
-    }
-    #endregion
-
-    #region 数据结构
-    public class ItemData
-    {
-        [JsonProperty("玩家名字", Order = 1)]
-        public string Name { get; set; }
-        [JsonProperty("记录时间", Order = 2)]
-        public DateTime LoginTime { get; set; }
-        [JsonProperty("垃圾桶开关", Order = 3)]
-        public bool Enabled { get; set; } = false;
-        [JsonProperty("监听垃圾桶", Order = 4)]
-        public bool TrashItem { get; set; } = false;
-        [JsonProperty("自动清理提示", Order = 5)]
-        public bool Mess { get; set; } = true;
-        [JsonProperty("垃圾桶物品", Order = 6)]
-        public List<string> ItemName { get; set; }
-
-        public ItemData(string name = "", bool enabled = false,bool trash = false,bool mess = false, DateTime time = default, List<string> item = null!)
-        {
-            Name = name ?? "";
-            Enabled = enabled;
-            LoginTime = time;
-            TrashItem = trash;
-            Mess = mess;
-            ItemName = item ?? new List<string>(); ;
-        }
-    }
     #endregion
 
     #region 读取与创建配置文件方法
@@ -68,7 +38,7 @@ internal class Configuration
 
     public void Write()
     {
-        string json = JsonConvert.SerializeObject(this, Formatting.Indented);
+        var json = JsonConvert.SerializeObject(this, Formatting.Indented);
         File.WriteAllText(FilePath, json);
     }
 
@@ -77,13 +47,12 @@ internal class Configuration
         if (!File.Exists(FilePath))
         {
             var NewConfig = new Configuration();
-            NewConfig.Ints();
             new Configuration().Write();
             return NewConfig;
         }
         else
         {
-            string jsonContent = File.ReadAllText(FilePath);
+            var jsonContent = File.ReadAllText(FilePath);
             return JsonConvert.DeserializeObject<Configuration>(jsonContent)!;
         }
     }

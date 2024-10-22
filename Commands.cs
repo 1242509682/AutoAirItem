@@ -9,78 +9,78 @@ public class Commands
     public static void AirCmd(CommandArgs args)
     {
         var name = args.Player.Name;
-        var config = AutoAirItem.Config.Items.FirstOrDefault(item => item.Name == name);
+        var data = AutoAirItem.data.Items.FirstOrDefault(item => item.Name == name);
 
-        if (!AutoAirItem.Config.Open) return;
-        if (config == null)
+        if (!AutoAirItem.Config.Open)
         {
-            args.Player.SendErrorMessage("请用角色进入服务器后输入：/air 指令查看菜单");
+            return;
+        }
+
+        if (data == null)
+        {
+            args.Player.SendInfoMessage("请用角色[c/D95065:重进服务器]后输入：/air 指令查看菜单\n羽学声明：本插件纯属[c/7E93DE:免费]请勿上当受骗", 217,217,217);
             return;
         }
 
         if (args.Parameters.Count == 0)
         {
             HelpCmd(args.Player);
-            if (!config.Enabled)
+            if (!data.Enabled)
             {
                 args.Player.SendSuccessMessage($"请输入该指令开启→: [c/92C5EC:/air on] ");
             }
             else
             {
-                args.Player.SendSuccessMessage($"您的垃圾桶监听状态为：[c/92C5EC:{config.TrashItem}]");
+                args.Player.SendSuccessMessage($"您的垃圾桶监听状态为：[c/92C5EC:{data.Auto}]");
+                args.Player.SendSuccessMessage($"输入指令切换自动模式：[c/92C5EC:/air auto]");
             }
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "list")
         {
-            args.Player.SendInfoMessage($"[{config.Name}的垃圾桶]\n" + string.Join(", ", config.ItemName.Select(x => "[c/92C5EC:{0}]".SFormat(x))));
+            args.Player.SendInfoMessage($"[{data.Name}的垃圾桶]\n" + string.Join(", ", data.ItemName.Select(x => "[c/92C5EC:{0}]".SFormat(x))));
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "on")
         {
-            bool isEnabled = config.Enabled;
-            config.Enabled = !isEnabled;
-            string Mess = isEnabled ? "禁用" : "启用";
+            var isEnabled = data.Enabled;
+            data.Enabled = !isEnabled;
+            var Mess = isEnabled ? "禁用" : "启用";
             args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 已[c/92C5EC:{Mess}]自动垃圾桶功能。");
-            AutoAirItem.Config.Write();
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "clear")
         {
-            config.ItemName.Clear();
+            data.ItemName.Clear();
             args.Player.SendSuccessMessage($"已清理[c/92C5EC: {args.Player.Name} ]的自动垃圾桶表");
-            AutoAirItem.Config.Write();
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "yes")
         {
-            config.ItemName.Add(args.TPlayer.inventory[args.TPlayer.selectedItem].Name);
-            AutoAirItem.Config.Write();
+            data.ItemName.Add(args.TPlayer.inventory[args.TPlayer.selectedItem].Name);
             args.Player.SendSuccessMessage("手选物品 [c/92C5EC:{0}] 已加入自动垃圾桶中! 脱手即清!", args.TPlayer.inventory[args.TPlayer.selectedItem].Name);
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "auto")
         {
-            bool isEnabled = config.TrashItem;
-            config.TrashItem = !isEnabled;
-            string Mess = isEnabled ? "禁用" : "启用";
+            var isEnabled = data.Auto;
+            data.Auto = !isEnabled;
+            var Mess = isEnabled ? "禁用" : "启用";
             args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 的垃圾桶位格监听功能已[c/92C5EC:{Mess}]");
-            AutoAirItem.Config.Write();
             return;
         }
 
         if (args.Parameters.Count == 1 && args.Parameters[0].ToLower() == "mess")
         {
-            bool isEnabled = config.Mess;
-            config.Mess = !isEnabled;
-            string Mess = isEnabled ? "禁用" : "启用";
+            var isEnabled = data.Mess;
+            data.Mess = !isEnabled;
+            var Mess = isEnabled ? "禁用" : "启用";
             args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:{Mess}]");
-            AutoAirItem.Config.Write();
             return;
         }
 
@@ -101,19 +101,20 @@ public class Commands
             }
 
             else
+            {
                 item = Items[0];
+            }
 
             switch (args.Parameters[0].ToLower())
             {
                 case "add":
                     {
-                        if (config.ItemName.Contains(item.Name))
+                        if (data.ItemName.Contains(item.Name))
                         {
                             args.Player.SendErrorMessage("物品 [c/92C5EC:{0}] 已在垃圾桶中!", item.Name);
                             return;
                         }
-                        config.ItemName.Add(item.Name);
-                        AutoAirItem.Config.Write();
+                        data.ItemName.Add(item.Name);
                         args.Player.SendSuccessMessage("已成功将物品添加到垃圾桶: [c/92C5EC:{0}]!", item.Name);
                         break;
                     }
@@ -121,13 +122,12 @@ public class Commands
                 case "del":
                 case "remove":
                     {
-                        if (!config.ItemName.Contains(item.Name))
+                        if (!data.ItemName.Contains(item.Name))
                         {
                             args.Player.SendErrorMessage("物品 {0} 不在垃圾桶中!", item.Name);
                             return;
                         }
-                        config.ItemName.Remove(item.Name);
-                        AutoAirItem.Config.Write();
+                        data.ItemName.Remove(item.Name);
                         args.Player.SendSuccessMessage("已成功从垃圾桶删除物品: [c/92C5EC:{0}]!", item.Name);
                         break;
                     }
@@ -159,4 +159,6 @@ public class Commands
         }
     }
     #endregion
+
+
 }
