@@ -19,14 +19,12 @@ public class AutoAirItem : TerrariaPlugin
 
     #region 注册与释放
     public AutoAirItem(Main game) : base(game) { }
-    private GeneralHooks.ReloadEventD _reloadHandler;
     internal static Configuration Config = new();
     internal static MyData data = new();
     public override void Initialize()
     {
         LoadConfig();
-        this._reloadHandler = (_) => LoadConfig();
-        GeneralHooks.ReloadEvent += this._reloadHandler;
+        GeneralHooks.ReloadEvent += LoadConfig;
         ServerApi.Hooks.GameUpdate.Register(this, this.OnGameUpdate);
         ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
         ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
@@ -37,7 +35,7 @@ public class AutoAirItem : TerrariaPlugin
     {
         if (disposing)
         {
-            GeneralHooks.ReloadEvent -= this._reloadHandler;
+            GeneralHooks.ReloadEvent -= LoadConfig;
             ServerApi.Hooks.GameUpdate.Deregister(this, this.OnGameUpdate);
             ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
             ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
@@ -48,7 +46,7 @@ public class AutoAirItem : TerrariaPlugin
     #endregion
 
     #region 配置重载读取与写入方法
-    private static void LoadConfig()
+    private static void LoadConfig(ReloadEventArgs args = null!)
     {
         Config = Configuration.Read();
         Config.Write();
