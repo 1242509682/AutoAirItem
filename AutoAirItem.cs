@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using IL.ReLogic.Peripherals.RGB;
 using Terraria;
 using Terraria.ID;
 using TerrariaApi.Server;
@@ -13,7 +14,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 0);
+    public override Version Version => new Version(1, 1, 2);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
@@ -55,18 +56,26 @@ public class AutoAirItem : TerrariaPlugin
     #endregion
 
     #region 玩家更新配置方法（计入记录时间并创建配置结构）
+    private static int ClearCount = 0; //需要清理的玩家计数
     private void OnJoin(JoinEventArgs args)
     {
-        var plr = TShock.Players[args.Who];
-        var list = data.Items.FirstOrDefault(x => x.Name == plr.Name);
-
-        if (!Config.Open)
+        if (args == null || !Config.Open)
         {
             return;
         }
 
-        //不是数据表里玩家则给他自动创建数据
-        if (!data.Items.Any(item => item.Name == plr.Name))
+        var plr = TShock.Players[args.Who];
+
+        if (plr == null)
+        {
+            return;
+        }
+
+        // 查找玩家数据
+        var list = data.Items.FirstOrDefault(x => x.Name == plr.Name);
+
+        // 如果玩家不在数据表中，则创建新的数据条目
+        if (list == null || plr.Name != list.Name)
         {
             data.Items.Add(new MyData.ItemData()
             {
@@ -81,40 +90,34 @@ public class AutoAirItem : TerrariaPlugin
         }
         else
         {
-            list!.LogTime = DateTime.Now;
+            // 更新玩家的登录时间和活跃状态
+            list.LogTime = DateTime.Now;
             list.IsActive = true;
         }
-    }
-    #endregion
 
-    #region 玩家离开服务器更新记录时间，横比所有玩家的记录时间，如超过清理周期，则自动删除玩家数据
-    private static int ClearCount = 0; //需要清理的玩家计数
-    private void OnLeave(LeaveEventArgs args)
-    {
-        var plr = TShock.Players[args.Who];
-        var list = data.Items.FirstOrDefault(x => x.Name == plr.Name);
-
-        if (!Config.Open)
+        //清理数据方法
+        if (Config.ClearData && list != null)
         {
-            return;
-        }
+            // 获取当前在线玩家的名字列表
+            var OnlinePlayers = Enumerable.Range(0, TShock.Players.Length).Select(i => TShock.Players[i])
+                .Where(p => p != null && p.Active && p.Name != null).Select(p => p.Name).ToList();
 
-        //离开服务器更新记录时间与活跃状态
-        if (data.Items.Any(item => item.Name == plr.Name))
-        {
-            list!.LogTime = DateTime.Now;
-            list.IsActive = false;
-        }
+            // 遍历数据列表，将不在当前在线名单中的玩家设置为非活跃
+            foreach (var item in data.Items)
+            {
+                if (item != null && !OnlinePlayers.Contains(item.Name))
+                {
+                    item.IsActive = false;
+                }
+            }
 
-        if (Config.ClearData)
-        {
-            var Remove = data.Items.Where(list => list.LogTime != default && 
+            var Remove = data.Items.Where(list => list != null && list.LogTime != default &&
             (DateTime.Now - list.LogTime).TotalHours >= Config.timer).ToList();
 
             //数据清理的播报内容
             var mess = new StringBuilder();
             mess.AppendLine($"[i:3455][c/AD89D5:自][c/D68ACA:动][c/DF909A:垃][c/E5A894:圾][c/E5BE94:桶][i:3454]");
-            mess.AppendLine($"以下玩家 与 [c/ABD6C7:{plr.Name}] 离开时间\n【[c/A1D4C2:{DateTime.Now}]】\n" +
+            mess.AppendLine($"以下玩家离线时间 与 [c/ABD6C7:{plr.Name}] 加入时间\n【[c/A1D4C2:{DateTime.Now}]】\n" +
                 $"超过 [c/E17D8C:{Config.timer}] 小时 已清理 [c/76D5B4:自动垃圾桶] 数据：");
 
             foreach (var plr2 in Remove)
@@ -144,6 +147,36 @@ public class AutoAirItem : TerrariaPlugin
 
                 TShock.Utils.Broadcast(mess.ToString(), 247, 244, 150);
                 ClearCount = 0;
+            }
+        }
+    }
+    #endregion
+
+    #region 玩家离开服务器更新记录时间
+    private void OnLeave(LeaveEventArgs args)
+    {
+        if (args == null || !Config.Open)
+        {
+            return;
+        }
+
+        var plr = TShock.Players[args.Who];
+        var list = data.Items.FirstOrDefault(x => x != null && x.Name == plr.Name);
+        if (plr == null || list == null) 
+        { 
+            return; 
+        }
+
+        if (Config.ClearData)
+        {
+            //离开服务器更新记录时间与活跃状态
+            if (!plr.Active && plr.Name == list.Name )
+            {
+                if (list.IsActive)
+                {
+                    list.LogTime = DateTime.Now;
+                    list.IsActive = false;
+                }
             }
         }
     }
