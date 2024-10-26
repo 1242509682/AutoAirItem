@@ -9,6 +9,12 @@
 
 ## 更新日志
 ```
+v1.1.3
+美化了指令菜单
+加入/air sd 修改垃圾清理速度指令
+加入/air reset 清空所有玩家数据指令（用来重置服务器）
+/air mess指令可控制隐藏：加入垃圾桶的物品提示
+
 v1.1.2
 修复玩家退出服务器时的空引用
 将清理数据功能移到加入服务器事件中
@@ -59,7 +65,10 @@ v1.0.0
 | /air yes | /垃圾 yes |   AutoAir.use    |    手持物品加入垃圾桶表   |
 | /air auto | /垃圾 auto |   AutoAir.use    |    将物品放入垃圾桶位格时自动添加垃圾桶表   |
 | /air mess  | /垃圾 mess |   AutoAir.use    |    开启或关闭清理消息    |
+| /air sd 数值 | /垃圾 speed |   AutoAir.use    |    设置清理速度    |
 | /air add 或 del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    添加或移除自己的垃圾桶物品    |
+| /air reset | /垃圾 reset|   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
+| /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
 
 ---
 注意事项

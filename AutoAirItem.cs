@@ -14,18 +14,18 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 2);
+    public override Version Version => new Version(1, 1, 3);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
     #region 注册与释放
     public AutoAirItem(Main game) : base(game) { }
     internal static Configuration Config = new();
-    internal static MyData data = new();
+    internal static MyData Data = new();
     public override void Initialize()
     {
         LoadConfig();
-        GeneralHooks.ReloadEvent += LoadConfig;
+        GeneralHooks.ReloadEvent += ReloadConfig;
         ServerApi.Hooks.GameUpdate.Register(this, this.OnGameUpdate);
         ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
         ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
@@ -36,7 +36,7 @@ public class AutoAirItem : TerrariaPlugin
     {
         if (disposing)
         {
-            GeneralHooks.ReloadEvent -= LoadConfig;
+            GeneralHooks.ReloadEvent -= ReloadConfig;
             ServerApi.Hooks.GameUpdate.Deregister(this, this.OnGameUpdate);
             ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
             ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
@@ -47,16 +47,21 @@ public class AutoAirItem : TerrariaPlugin
     #endregion
 
     #region 配置重载读取与写入方法
-    private static void LoadConfig(ReloadEventArgs args = null!)
+    private static void ReloadConfig(ReloadEventArgs args = null!)
+    {
+        LoadConfig();
+        args.Player.SendInfoMessage("[自动垃圾桶]重新加载配置完毕。");
+    }
+    private static void LoadConfig()
     {
         Config = Configuration.Read();
         Config.Write();
-        TShock.Log.ConsoleInfo("[自动垃圾桶]重新加载配置完毕。");
     }
     #endregion
 
     #region 玩家更新配置方法（计入记录时间并创建配置结构）
     private static int ClearCount = 0; //需要清理的玩家计数
+    public readonly static List<TSPlayer> ActivePlayer = new();
     private void OnJoin(JoinEventArgs args)
     {
         if (args == null || !Config.Open)
@@ -72,12 +77,12 @@ public class AutoAirItem : TerrariaPlugin
         }
 
         // 查找玩家数据
-        var list = data.Items.FirstOrDefault(x => x.Name == plr.Name);
+        var data = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
 
         // 如果玩家不在数据表中，则创建新的数据条目
-        if (list == null || plr.Name != list.Name)
+        if (data == null || plr.Name != data.Name)
         {
-            data.Items.Add(new MyData.ItemData()
+            Data.Items.Add(new MyData.ItemData()
             {
                 Name = plr.Name,
                 Enabled = true,
@@ -85,33 +90,30 @@ public class AutoAirItem : TerrariaPlugin
                 Auto = true,
                 LogTime = DateTime.Now,
                 Mess = true,
+                UpdateRate = 10,
                 ItemName = new List<string>()
             });
         }
         else
         {
             // 更新玩家的登录时间和活跃状态
-            list.LogTime = DateTime.Now;
-            list.IsActive = true;
+            data.LogTime = DateTime.Now;
+            data.IsActive = true;
         }
 
-        //清理数据方法
-        if (Config.ClearData && list != null)
+        //清理数据方法 
+        if (Config.ClearData && data != null)
         {
             // 获取当前在线玩家的名字列表
-            var OnlinePlayers = Enumerable.Range(0, TShock.Players.Length).Select(i => TShock.Players[i])
-                .Where(p => p != null && p.Active && p.Name != null).Select(p => p.Name).ToList();
+            var active = ActivePlayer.Where(p => p != null && p.Active).Select(p => p.Name).ToList();
 
-            // 遍历数据列表，将不在当前在线名单中的玩家设置为非活跃
-            foreach (var item in data.Items)
+            if (!active.Contains(data.Name))
             {
-                if (item != null && !OnlinePlayers.Contains(item.Name))
-                {
-                    item.IsActive = false;
-                }
+                data.IsActive = false;
             }
 
-            var Remove = data.Items.Where(list => list != null && list.LogTime != default &&
+            //清理条件
+            var Remove = Data.Items.Where(list => list != null && list.LogTime != default &&
             (DateTime.Now - list.LogTime).TotalHours >= Config.timer).ToList();
 
             //数据清理的播报内容
@@ -131,7 +133,7 @@ public class AutoAirItem : TerrariaPlugin
                 {
                     ClearCount++;
                     mess.AppendFormat("[c/A7DDF0:{0}]:[c/74F3C9:{1}小时], ", plr2.Name, Hours);
-                    data.Items.Remove(plr2);
+                    Data.Items.Remove(plr2);
                 }
             }
 
@@ -161,16 +163,16 @@ public class AutoAirItem : TerrariaPlugin
         }
 
         var plr = TShock.Players[args.Who];
-        var list = data.Items.FirstOrDefault(x => x != null && x.Name == plr.Name);
-        if (plr == null || list == null) 
-        { 
-            return; 
+        var list = Data.Items.FirstOrDefault(x => x != null && x.Name == plr.Name);
+        if (plr == null || list == null)
+        {
+            return;
         }
 
         if (Config.ClearData)
         {
             //离开服务器更新记录时间与活跃状态
-            if (!plr.Active && plr.Name == list.Name )
+            if (!plr.Active && plr.Name == list.Name)
             {
                 if (list.IsActive)
                 {
@@ -195,8 +197,8 @@ public class AutoAirItem : TerrariaPlugin
 
         foreach (var plr in TShock.Players.Where(plr => plr != null && plr.Active && plr.IsLoggedIn))
         {
-            var list = data.Items.FirstOrDefault(x => x.Name == plr.Name);
-            if (list != null && list.Enabled && Timer % Config.UpdateRate == 0)
+            var list = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
+            if (list != null && list.Enabled && Timer % list.UpdateRate == 0)
             {
                 AutoAirItems(plr, list.ItemName, list.Auto, list.Mess);
             }
@@ -219,7 +221,10 @@ public class AutoAirItem : TerrariaPlugin
                 if (!plr.trashItem.IsAir && !List.Contains(plr.trashItem.Name))
                 {
                     List.Add(plr.trashItem.Name);
-                    player.SendMessage($"已将 '[c/92C5EC:{plr.trashItem.Name}]'添加到自动垃圾桶|指令菜单:[c/A1D4C2:/air]", 255, 246, 158);
+                    if (mess)
+                    {
+                        player.SendMessage($"已将 '[c/92C5EC:{plr.trashItem.Name}]'添加到自动垃圾桶|指令菜单:[c/A1D4C2:/air]", 255, 246, 158);
+                    }
                 }
             }
 

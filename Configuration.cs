@@ -15,9 +15,6 @@ internal class Configuration
     [JsonProperty("插件开关", Order = -14)]
     public bool Open { get; set; } = true;
 
-    [JsonProperty("清理垃圾速度", Order = -2)]
-    public int UpdateRate = 10;
-
     [JsonProperty("广告开关", Order = -1)]
     public bool Enabled { get; set; } = true;
 
@@ -29,8 +26,6 @@ internal class Configuration
 
     [JsonProperty("清理数据周期/小时", Order = 2)]
     public long timer { get; set; } = 24;
-
-
     #endregion
 
     #region 读取与创建配置文件方法
