@@ -1,6 +1,4 @@
-﻿using System.Text;
-using IL.ReLogic.Peripherals.RGB;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -14,7 +12,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 3);
+    public override Version Version => new Version(1, 1, 4);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
@@ -28,8 +26,8 @@ public class AutoAirItem : TerrariaPlugin
         GeneralHooks.ReloadEvent += ReloadConfig;
         ServerApi.Hooks.GameUpdate.Register(this, this.OnGameUpdate);
         ServerApi.Hooks.ServerJoin.Register(this, OnJoin);
-        ServerApi.Hooks.ServerLeave.Register(this, OnLeave);
         TShockAPI.Commands.ChatCommands.Add(new Command("AutoAir.use", Commands.AirCmd, "air", "垃圾"));
+        TShockAPI.Commands.ChatCommands.Add(new Command("AutoAir.admin", Commands.Reset, "airreset", "重置垃圾桶"));
     }
 
     protected override void Dispose(bool disposing)
@@ -39,8 +37,8 @@ public class AutoAirItem : TerrariaPlugin
             GeneralHooks.ReloadEvent -= ReloadConfig;
             ServerApi.Hooks.GameUpdate.Deregister(this, this.OnGameUpdate);
             ServerApi.Hooks.ServerJoin.Deregister(this, OnJoin);
-            ServerApi.Hooks.ServerLeave.Deregister(this, OnLeave);
             TShockAPI.Commands.ChatCommands.RemoveAll(x => x.CommandDelegate == Commands.AirCmd);
+            TShockAPI.Commands.ChatCommands.RemoveAll(x => x.CommandDelegate == Commands.Reset);
         }
         base.Dispose(disposing);
     }
@@ -59,9 +57,7 @@ public class AutoAirItem : TerrariaPlugin
     }
     #endregion
 
-    #region 玩家更新配置方法（计入记录时间并创建配置结构）
-    private static int ClearCount = 0; //需要清理的玩家计数
-    public readonly static List<TSPlayer> ActivePlayer = new();
+    #region 玩家更新配置方法（创建配置结构）
     private void OnJoin(JoinEventArgs args)
     {
         if (args == null || !Config.Open)
@@ -86,100 +82,11 @@ public class AutoAirItem : TerrariaPlugin
             {
                 Name = plr.Name,
                 Enabled = true,
-                IsActive = true,
                 Auto = true,
-                LogTime = DateTime.Now,
                 Mess = true,
                 UpdateRate = 10,
                 ItemName = new List<string>()
             });
-        }
-        else
-        {
-            // 更新玩家的登录时间和活跃状态
-            data.LogTime = DateTime.Now;
-            data.IsActive = true;
-        }
-
-        //清理数据方法 
-        if (Config.ClearData && data != null)
-        {
-            // 获取当前在线玩家的名字列表
-            var active = ActivePlayer.Where(p => p != null && p.Active).Select(p => p.Name).ToList();
-
-            if (!active.Contains(data.Name))
-            {
-                data.IsActive = false;
-            }
-
-            //清理条件
-            var Remove = Data.Items.Where(list => list != null && list.LogTime != default &&
-            (DateTime.Now - list.LogTime).TotalHours >= Config.timer).ToList();
-
-            //数据清理的播报内容
-            var mess = new StringBuilder();
-            mess.AppendLine($"[i:3455][c/AD89D5:自][c/D68ACA:动][c/DF909A:垃][c/E5A894:圾][c/E5BE94:桶][i:3454]");
-            mess.AppendLine($"以下玩家离线时间 与 [c/ABD6C7:{plr.Name}] 加入时间\n【[c/A1D4C2:{DateTime.Now}]】\n" +
-                $"超过 [c/E17D8C:{Config.timer}] 小时 已清理 [c/76D5B4:自动垃圾桶] 数据：");
-
-            foreach (var plr2 in Remove)
-            {
-                //只显示小时数 F0整数 F1保留1位小数 F2保留2位 如：24.01小时
-                var hours = (DateTime.Now - plr2.LogTime).TotalHours;
-                FormattableString Hours = $"{hours:F0}";
-
-                //更新时间超过Config预设的时间，并该玩家更新状态为false则添加计数并移除数据
-                if (hours >= Config.timer && !plr2.IsActive)
-                {
-                    ClearCount++;
-                    mess.AppendFormat("[c/A7DDF0:{0}]:[c/74F3C9:{1}小时], ", plr2.Name, Hours);
-                    Data.Items.Remove(plr2);
-                }
-            }
-
-            //确保有一个玩家计数，只播报一次
-            if (ClearCount > 0 && mess.Length > 0)
-            {
-                //广告开关
-                if (Config.Enabled)
-                {
-                    //自定义广告内容
-                    mess.AppendLine(Config.Advertisement);
-                }
-
-                TShock.Utils.Broadcast(mess.ToString(), 247, 244, 150);
-                ClearCount = 0;
-            }
-        }
-    }
-    #endregion
-
-    #region 玩家离开服务器更新记录时间
-    private void OnLeave(LeaveEventArgs args)
-    {
-        if (args == null || !Config.Open)
-        {
-            return;
-        }
-
-        var plr = TShock.Players[args.Who];
-        var list = Data.Items.FirstOrDefault(x => x != null && x.Name == plr.Name);
-        if (plr == null || list == null)
-        {
-            return;
-        }
-
-        if (Config.ClearData)
-        {
-            //离开服务器更新记录时间与活跃状态
-            if (!plr.Active && plr.Name == list.Name)
-            {
-                if (list.IsActive)
-                {
-                    list.LogTime = DateTime.Now;
-                    list.IsActive = false;
-                }
-            }
         }
     }
     #endregion

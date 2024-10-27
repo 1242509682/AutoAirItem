@@ -1,11 +1,43 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
+﻿using Terraria;
 using TShockAPI;
 
 namespace AutoAirItem;
 
 public class Commands
 {
+    #region 菜单方法
+    private static void HelpCmd(TSPlayer player)
+    {
+        if (player == null) return;
+        else
+        {
+            player.SendMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
+             "/air —— 查看垃圾桶菜单\n" +
+             "/airreset —— 清空[c/85CFDE:所有玩家]数据\n" +
+             "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
+             "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
+             "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
+             "/air yes —— 将[c/E488C1:手持物品]加入垃圾桶\n" +
+             "/air auto —— 监听[c/F3B691:垃圾桶位格]开关\n" +
+             "/air mess —— 开启|关闭[c/F2F292:清理消息]\n" +
+             "/air sd 数字 —— 设置[c/85CFDE:清理速度](越小越快)\n" +
+             "/air add 或 del 名字 —— [c/87DF86:添加]|[c/F19092:删除]垃圾桶物品", 193, 223, 186);
+        }
+    }
+    #endregion
+
+    #region 重置数据方法
+    public static void Reset(CommandArgs args)
+    {
+        if (args.Parameters.Count == 0)
+        {
+            AutoAirItem.Data.Items.Clear();
+            args.Player.SendSuccessMessage($"已[c/92C5EC:清空]所有玩家《自动垃圾桶》数据！");
+            return;
+        }
+    }
+    #endregion
+
     public static void AirCmd(CommandArgs args)
     {
         var name = args.Player.Name;
@@ -85,13 +117,6 @@ public class Commands
                 args.Player.SendSuccessMessage($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:{Mess}]");
                 return;
             }
-
-            if (args.Parameters[0].ToLower() == "reset" && args.Player.HasPermission("AutoAir.admin"))
-            {
-                AutoAirItem.Data.Items.Clear();
-                args.Player.SendSuccessMessage($"已[c/92C5EC:清空]所有玩家数据！");
-                return;
-            }
         }
 
         if (args.Parameters.Count == 2)
@@ -163,27 +188,5 @@ public class Commands
             }
         }
     }
-
-    #region 菜单方法
-    private static void HelpCmd(TSPlayer player)
-    {
-        if (player == null) return;
-        else
-        {
-            player.SendMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
-             "/air —— 查看垃圾桶菜单\n" +
-             "/air reset —— 清空[c/85CFDE:所有玩家]数据\n" +
-             "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
-             "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
-             "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
-             "/air yes —— 将[c/E488C1:手持物品]加入垃圾桶\n" +
-             "/air auto —— 监听[c/F3B691:垃圾桶位格]开关\n" +
-             "/air mess —— 开启|关闭[c/F2F292:清理消息]\n" +
-             "/air sd 数字 —— 设置[c/85CFDE:清理速度](越小越快)\n" +
-             "/air add 或 del 名字 —— [c/87DF86:添加]|[c/F19092:删除]垃圾桶物品", 193, 223, 186);
-        }
-    }
-    #endregion
-
 
 }
