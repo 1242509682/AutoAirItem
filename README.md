@@ -78,6 +78,8 @@ v1.0.0
 | /air add 或 del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    添加或移出自己的垃圾桶物品    |
 | /airreset | /重置垃圾桶|   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
 | /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
+| /airreset | /重置垃圾桶|   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
+| /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
 
 ---
 注意事项
