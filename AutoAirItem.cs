@@ -161,12 +161,30 @@ public class AutoAirItem : TerrariaPlugin
     {
         if (delItem.ContainsKey(type))
         {
-            delItem[type] += stack;
+            // 先计算累加后的值
+            int newAmount = delItem[type] + stack;
+
+            // 如果累加后的值超过最大堆叠数，则只等于最大值（避免超出9999）
+            if (newAmount > Item.CommonMaxStack)
+            {
+                delItem[type] = Item.CommonMaxStack;
+            }
+            else
+            {
+                delItem[type] = newAmount;
+            }
         }
         else
         {
+            // 如果是新移除的垃圾，直接添加
             delItem.Add(type, stack);
         }
-    } 
+
+        // 再次检查新移除的垃圾是否超过了最大值
+        if (delItem[type] > Item.CommonMaxStack)
+        {
+            delItem[type] = Item.CommonMaxStack;
+        }
+    }
     #endregion
 }

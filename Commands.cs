@@ -180,18 +180,6 @@ public class Commands
                         break;
                     }
 
-                case "s":
-                case "sd":
-                case "speed":
-                    {
-                        if (int.TryParse(args.Parameters[1], out int num))
-                        {
-                            data.UpdateRate = num;
-                            args.Player.SendSuccessMessage("已成功将清理速度设置为: [c/C9C7F5:{0}] !", num);
-                        }
-                        break;
-                    }
-
                 default:
                     {
                         HelpCmd(args.Player);
