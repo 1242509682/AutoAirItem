@@ -12,7 +12,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 5);
+    public override Version Version => new Version(1, 1, 6);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
@@ -159,31 +159,18 @@ public class AutoAirItem : TerrariaPlugin
     #region 更新字典:把清理掉的物品和数量记录下来
     public static void UpDict(Dictionary<int, int> delItem, int type, int stack)
     {
+        //如果ID已经在字典里
         if (delItem.ContainsKey(type))
         {
-            // 先计算累加后的值
-            int newAmount = delItem[type] + stack;
-
-            // 如果累加后的值超过最大堆叠数，则只等于最大值（避免超出9999）
-            if (newAmount > Item.CommonMaxStack)
-            {
-                delItem[type] = Item.CommonMaxStack;
-            }
-            else
-            {
-                delItem[type] = newAmount;
-            }
+            // 给这个ID加数量
+            delItem[type] += stack;
         }
+
+        // ID不在字典里
         else
         {
-            // 如果是新移除的垃圾，直接添加
+            // 直接添加新ID和它的数量
             delItem.Add(type, stack);
-        }
-
-        // 再次检查新移除的垃圾是否超过了最大值
-        if (delItem[type] > Item.CommonMaxStack)
-        {
-            delItem[type] = Item.CommonMaxStack;
         }
     }
     #endregion
