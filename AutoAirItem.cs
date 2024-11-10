@@ -12,7 +12,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 6);
+    public override Version Version => new Version(1, 1, 7);
     public override string Description => "涡轮增压不蒸鸭";
     #endregion
 
@@ -137,15 +137,14 @@ public class AutoAirItem : TerrariaPlugin
                 //是垃圾桶表的物品,不是手上的物品 进行移除
                 if (list.ItemType.Contains(inv.type) && inv.type != plr.TPlayer.inventory[plr.TPlayer.selectedItem].type)
                 {
-                    //将要移除的物品更新到字典，使用/air del指令能方便返还
-                    UpDict(list.DelItem, inv.type, inv.stack);
-
                     if (list.Mess)
                     {
                         var name = Lang.GetItemName(inv.type);
-
                         plr.SendMessage(GetString($"已将 '[c/92C5EC:{name}]'从您的背包中移除|[c/92C5EC:返还物品]: [c/A1D4C2:/air del {inv.type}]"), 255, 246, 158);
                     }
+
+                    //将要移除的物品更新到字典，使用/air del指令能方便返还
+                    UpDict(list.DelItem, inv.type, inv.stack);
 
                     //将背包指定物品清空并发包
                     inv.TurnToAir();
@@ -165,12 +164,11 @@ public class AutoAirItem : TerrariaPlugin
             // 给这个ID加数量
             delItem[type] += stack;
         }
-
         // ID不在字典里
         else
         {
             // 直接添加新ID和它的数量
-            delItem.Add(type, stack);
+            delItem.Add(type, 0);
         }
     }
     #endregion

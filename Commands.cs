@@ -219,10 +219,10 @@ public class Commands
                             if (item.maxStack != 9999)
                             {
                                 // 分批发放，每次发一个
-                                for (int i = 0; i < del.Value; i += item.maxStack)
+                                for (var i = 0; i < del.Value; i += item.maxStack)
                                 {
                                     // 计算本次应发放的数量
-                                    int toGive = Math.Min(item.maxStack, del.Value - i);
+                                    var toGive = Math.Min(item.maxStack, del.Value - i);
                                     args.Player.GiveItem(del.Key, toGive, 0);
                                 }
                             }
@@ -230,10 +230,10 @@ public class Commands
                             else
                             {
                                 //分批发放，每次发9999个
-                                for (int i = 0; i < del.Value; i += 9999)
+                                for (var i = 0; i < del.Value; i += 9999)
                                 {
                                     // 计算本次应发放的数量
-                                    int toGive = Math.Min(9999, del.Value - i);
+                                    var toGive = Math.Min(9999, del.Value - i);
                                     args.Player.GiveItem(del.Key, toGive, 0);
                                 }
                             }
@@ -253,7 +253,7 @@ public class Commands
 
                 case "ck":
                     {
-                        if (int.TryParse(args.Parameters[1], out int num))
+                        if (int.TryParse(args.Parameters[1], out var num))
                         {
                             CheckCmd(args, num);
                         }
