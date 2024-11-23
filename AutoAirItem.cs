@@ -1,4 +1,5 @@
-﻿using Terraria;
+﻿using Microsoft.Data.Sqlite;
+using Terraria;
 using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -12,20 +13,30 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 1, 7);
-    public override string Description => "涡轮增压不蒸鸭";
+    public override Version Version => new Version(1, 2, 0);
+    public override string Description => "自动垃圾桶";
+    #endregion
+
+    #region 实例变量
+    public static Database DB = new Database(new SqliteConnection("Data Source=" + Database.Path));
+    internal static Configuration Config = new();
+    internal static MyData Data = new();
     #endregion
 
     #region 注册与释放
     public AutoAirItem(Main game) : base(game) { }
-    internal static Configuration Config = new();
-    internal static MyData Data = new();
     public override void Initialize()
     {
         LoadConfig();
+
+        if (Config.Db)
+        {
+            LoadAllPlayerData(); // 加载所有玩家的数据
+        }
+
         GeneralHooks.ReloadEvent += ReloadConfig;
         GetDataHandlers.PlayerUpdate.Register(this.OnPlayerUpdate);
-        ServerApi.Hooks.ServerJoin.Register(this, this.OnJoin);
+        ServerApi.Hooks.NetGreetPlayer.Register(this, this.OnGreetPlayer);
         TShockAPI.Commands.ChatCommands.Add(new Command("AutoAir.use", Commands.AirCmd, "air", "垃圾"));
         TShockAPI.Commands.ChatCommands.Add(new Command("AutoAir.admin", Commands.Reset, "airreset", "重置垃圾桶"));
     }
@@ -36,7 +47,7 @@ public class AutoAirItem : TerrariaPlugin
         {
             GeneralHooks.ReloadEvent -= ReloadConfig;
             GetDataHandlers.PlayerUpdate.UnRegister(this.OnPlayerUpdate);
-            ServerApi.Hooks.ServerJoin.Deregister(this, this.OnJoin);
+            ServerApi.Hooks.NetGreetPlayer.Deregister(this, this.OnGreetPlayer);
             TShockAPI.Commands.ChatCommands.RemoveAll(x => x.CommandDelegate == Commands.AirCmd);
             TShockAPI.Commands.ChatCommands.RemoveAll(x => x.CommandDelegate == Commands.Reset);
         }
@@ -57,8 +68,19 @@ public class AutoAirItem : TerrariaPlugin
     }
     #endregion
 
-    #region 玩家更新配置方法（创建配置结构）
-    private void OnJoin(JoinEventArgs args)
+    #region 加载所有玩家数据
+    private void LoadAllPlayerData()
+    {
+        var All = DB.LoadData();
+        foreach (var data in All)
+        {
+            Data.Items.Add(data);
+        }
+    }
+    #endregion
+
+    #region 创建玩家数据方法
+    private void OnGreetPlayer(GreetPlayerEventArgs args)
     {
         if (args == null || !Config.Open)
         {
@@ -75,7 +97,7 @@ public class AutoAirItem : TerrariaPlugin
         // 如果玩家不在数据表中，则创建新的数据条目
         if (!Data.Items.Any(item => item.Name == plr.Name))
         {
-            Data.Items.Add(new MyData.ItemData()
+            Data.Items.Add(new MyData.PlayerData()
             {
                 Name = plr.Name,
                 Enabled = true,
@@ -84,6 +106,8 @@ public class AutoAirItem : TerrariaPlugin
                 ItemType = new List<int>(),
                 DelItem = new Dictionary<int, int> { { 0, 0 }, }
             });
+
+            DB.CreateData(plr.Name);
         }
     }
     #endregion
@@ -151,6 +175,8 @@ public class AutoAirItem : TerrariaPlugin
                     plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, PlayerItemSlotID.Inventory0 + i);
                 }
             }
+
+            DB.UpdateData(list); //更新数据库
         }
     }
     #endregion
