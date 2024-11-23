@@ -87,35 +87,6 @@ namespace AutoAirItem
         }
         #endregion
 
-        #region 数据库查询方法
-        public List<MyData.PlayerData> GetData()
-        {
-            var data = new List<MyData.PlayerData>();
-
-            using var reader = DB.QueryReader("SELECT * FROM AutoTrash");
-
-            while (reader.Read())
-            {
-                var ItemType = reader.Get<string>("ItemType");
-                var DelItem = reader.Get<string>("DelItem");
-
-                var ItemList = JsonSerializer.Deserialize<List<int>>(ItemType);
-                var DelList = JsonSerializer.Deserialize<Dictionary<int, int>>(DelItem);
-
-                data.Add(new MyData.PlayerData(
-                    name: reader.Get<string>("Name"),
-                    enabled: reader.Get<int>("Enabled") == 1,
-                    auto: reader.Get<int>("Auto") == 1,
-                    mess: reader.Get<int>("Mess") == 1,
-                    item: ItemList!,
-                    DelItem: DelList!
-                ));
-            }
-
-            return data;
-        }
-        #endregion
-
         #region 清理所有数据方法
         public bool ClearData()
         {

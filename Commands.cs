@@ -57,7 +57,7 @@ public class Commands
 
         var index = 1;
 
-        var db = AutoAirItem.DB.GetData(); // 调用数据库查询方法
+        var db = AutoAirItem.DB.LoadData(); // 调用数据库查询方法
 
         foreach (var data in db)
         {
