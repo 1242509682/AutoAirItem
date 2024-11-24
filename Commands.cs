@@ -51,11 +51,11 @@ public class Commands
         }
 
         var flag = false;
-        args.Player.SendInfoMessage(GetString($"【以下垃圾桶数量超过[c/92C5EC:{num}]的玩家】"));
+        args.Player.SendInfoMessage(GetString($"以下垃圾物品数量超过【[c/92C5EC:{num}]】的玩家"));
 
         var plrs = new List<(int Index, string Name, List<(string ItemName, int Count)> ExcessItems)>();
 
-        var index = 1;
+        var index = 1; 
 
         var db = AutoAirItem.DB.LoadData(); // 调用数据库查询方法
 
@@ -80,7 +80,7 @@ public class Commands
         }
         else
         {
-            args.Player.SendMessage(GetString($"没有找到垃圾桶数量超过[c/92C5EC:{num}]的玩家"), 193, 223, 186);
+            args.Player.SendMessage(GetString($"没有找到垃圾数量超过[c/92C5EC:{num}]的玩家"), 193, 223, 186);
         }
     }
     #endregion

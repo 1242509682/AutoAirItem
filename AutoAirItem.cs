@@ -13,7 +13,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 2, 0);
+    public override Version Version => new Version(1, 2, 1);
     public override string Description => "自动垃圾桶";
     #endregion
 
@@ -133,50 +133,56 @@ public class AutoAirItem : TerrariaPlugin
             //遍历背包58格
             for (var i = 0; i < plr.TPlayer.inventory.Length; i++)
             {
-                // 跳过钱币栏格子
-                if (i > 50 && i < 54)
-                {
-                    continue;
-                }
-
-                //当前背包的格子
+                //物品的对应格子
                 var inv = plr.TPlayer.inventory[i];
+                var trash = plr.TPlayer.trashItem;
+                var selected = plr.TPlayer.inventory[plr.TPlayer.selectedItem];
+
+                //排除钱币
+                var coin = new int[] { 71, 72, 73, 74 };
+                if (coin.Contains(trash.type) || coin.Contains(inv.type))
+                {
+                    return;
+                }
 
                 //读取垃圾桶位格的物品 写入到玩家自己的垃圾桶表里
                 if (list.Auto)
                 {
                     //放进垃圾桶就视为垃圾
-                    if (!plr.TPlayer.trashItem.IsAir && !list.ItemType.Contains(plr.TPlayer.trashItem.type))
+                    if (!trash.IsAir && !list.ItemType.Contains(trash.type))
                     {
-                        list.ItemType.Add(plr.TPlayer.trashItem.type);
+                        list.ItemType.Add(trash.type);
 
                         //触发回馈信息
                         if (list.Mess)
                         {
-                            plr.SendMessage(GetString($"已将 '[c/92C5EC:{plr.TPlayer.trashItem.Name}]'添加到自动垃圾桶|指令菜单: [c/A1D4C2:/air]"), 255, 246, 158);
+                            var name = Lang.GetItemName(trash.type);
+                            plr.SendMessage(GetString($"已从垃圾桶移除 [c/92C5EC:{name}] |[c/92C5EC:返还]: [c/A1D4C2:/air del {trash.type}]"), 255, 246, 158);
                         }
+
+                        //将要移除的物品更新到字典，使用/air del指令能方便返还
+                        UpDict(list.DelItem, trash.type, trash.stack);
+                        DB.UpdateData(list); //更新到数据库
+                        trash.TurnToAir();
+                        plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, PlayerItemSlotID.TrashItem);
                     }
                 }
 
                 //是垃圾桶表的物品,不是手上的物品 进行移除
-                if (list.ItemType.Contains(inv.type) && inv.type != plr.TPlayer.inventory[plr.TPlayer.selectedItem].type)
+                if (list.ItemType.Contains(inv.type) && inv.type != selected.type)
                 {
                     if (list.Mess)
                     {
                         var name = Lang.GetItemName(inv.type);
-                        plr.SendMessage(GetString($"已将 '[c/92C5EC:{name}]'从您的背包中移除|[c/92C5EC:返还物品]: [c/A1D4C2:/air del {inv.type}]"), 255, 246, 158);
+                        plr.SendMessage(GetString($"已从背包移除 [c/92C5EC:{name}] |[c/92C5EC:返还]: [c/A1D4C2:/air del {inv.type}]"), 255, 246, 158);
                     }
 
-                    //将要移除的物品更新到字典，使用/air del指令能方便返还
                     UpDict(list.DelItem, inv.type, inv.stack);
-
-                    //将背包指定物品清空并发包
+                    DB.UpdateData(list); //更新到数据库
                     inv.TurnToAir();
                     plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, PlayerItemSlotID.Inventory0 + i);
                 }
             }
-
-            DB.UpdateData(list); //更新数据库
         }
     }
     #endregion
@@ -194,7 +200,7 @@ public class AutoAirItem : TerrariaPlugin
         else
         {
             // 直接添加新ID和它的数量
-            delItem.Add(type, 0);
+            delItem.Add(type, stack);
         }
     }
     #endregion
