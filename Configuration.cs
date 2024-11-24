@@ -14,6 +14,9 @@ internal class Configuration
 
     [JsonProperty("重启服务器不删数据", Order = -14)]
     public bool Db { get; set; } = true;
+
+    [JsonProperty("排除垃圾表", Order = -13)]
+    public int[] Exclude = new int[] { 71,72,73,74 };
     #endregion
 
     #region 读取与创建配置文件方法

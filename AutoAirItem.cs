@@ -139,8 +139,7 @@ public class AutoAirItem : TerrariaPlugin
                 var selected = plr.TPlayer.inventory[plr.TPlayer.selectedItem];
 
                 //排除钱币
-                var coin = new int[] { 71, 72, 73, 74 };
-                if (coin.Contains(trash.type) || coin.Contains(inv.type))
+                if (Config.Exclude.Contains(trash.type) || Config.Exclude.Contains(inv.type))
                 {
                     return;
                 }
