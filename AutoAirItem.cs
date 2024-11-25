@@ -59,7 +59,7 @@ public class AutoAirItem : TerrariaPlugin
     private static void ReloadConfig(ReloadEventArgs args)
     {
         LoadConfig();
-        args.Player.SendInfoMessage(GetString("[自动垃圾桶]重新加载配置完毕。"));
+        args.Player.SendInfoMessage("[自动垃圾桶]重新加载配置完毕。");
     }
     private static void LoadConfig()
     {
@@ -155,7 +155,7 @@ public class AutoAirItem : TerrariaPlugin
                             if (list.Mess) //触发回馈信息
                             {
                                 var name = Lang.GetItemName(trash.type);
-                                plr.SendMessage(GetString($"已从垃圾桶移除:[c/EC73B9:{trash.stack}]个[c/FF5C5F:{name}]|[c/92C5EC:返还]: [c/A1D4C2:/air del {trash.type}]"), 255, 246, 158);
+                                plr.SendMessage($"已从垃圾桶移除:[c/EC73B9:{trash.stack}]个[c/FF5C5F:{name}]|[c/92C5EC:返还]: [c/A1D4C2:/air del {trash.type}]", 255, 246, 158);
                             }
 
                             //将要移除的物品更新到字典，使用/air del指令能方便返还
@@ -173,7 +173,7 @@ public class AutoAirItem : TerrariaPlugin
                     if (list.Mess)
                     {
                         var name = Lang.GetItemName(inv.type);
-                        plr.SendMessage(GetString($"已从背包移除:[c/EC73B9:{inv.stack}]个[c/FF5C5F:{name}]|[c/92C5EC:返还]: [c/A1D4C2:/air del {inv.type}]"), 255, 246, 158);
+                        plr.SendMessage($"已从背包移除:[c/EC73B9:{inv.stack}]个[c/FF5C5F:{name}]|[c/92C5EC:返还]: [c/A1D4C2:/air del {inv.type}]", 255, 246, 158);
                     }
 
                     UpDict(list.DelItem, inv.type, inv.stack);
