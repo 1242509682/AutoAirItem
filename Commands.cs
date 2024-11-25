@@ -61,7 +61,7 @@ public class Commands
 
         foreach (var data in db)
         {
-            var Items = data.DelItem.Where(pair => pair.Value > num).Select(pair =>
+            var Items = data.DelItem.Where(pair => pair.Value >= num).Select(pair =>
                 (ItemName: TShock.Utils.GetItemById(pair.Key).Name, Count: pair.Value)).ToList();
 
             if (Items.Any())
@@ -126,10 +126,10 @@ public class Commands
 
             if (args.Parameters[0].ToLower() == "on")
             {
-                var isEnabled = data.Enabled;
-                data.Enabled = !isEnabled;
-                var Mess = isEnabled ? "禁用" : "启用";
-                args.Player.SendSuccessMessage(GetString($"玩家 [{args.Player.Name}] 已[c/92C5EC:{Mess}]自动垃圾桶功能。"));
+                data.Enabled = !data.Enabled;
+                args.Player.SendSuccessMessage(data.Enabled ?
+                    GetString($"玩家 [{args.Player.Name}] 已[c/92C5EC:启用]自动垃圾桶功能。") :
+                    GetString($"玩家 [{args.Player.Name}] 已[c/92C5EC:禁用]自动垃圾桶功能。"));
                 AutoAirItem.DB.UpdateData(data); // 更新数据库
                 return;
             }
@@ -153,20 +153,20 @@ public class Commands
 
             if (args.Parameters[0].ToLower() == "auto")
             {
-                var isEnabled = data.Auto;
-                data.Auto = !isEnabled;
-                var Mess = isEnabled ? "禁用" : "启用";
-                args.Player.SendSuccessMessage(GetString($"玩家 [{args.Player.Name}] 的垃圾桶位格监听功能已[c/92C5EC:{Mess}]"));
+                data.Auto = !data.Auto;
+                args.Player.SendSuccessMessage(data.Auto ?
+                    GetString($"玩家 [{args.Player.Name}] 的垃圾桶位格监听功能已[c/92C5EC:启用]") :
+                    GetString($"玩家 [{args.Player.Name}] 的垃圾桶位格监听功能已[c/92C5EC:禁用]"));
                 AutoAirItem.DB.UpdateData(data); // 更新数据库
                 return;
             }
 
             if (args.Parameters[0].ToLower() == "mess")
             {
-                var isEnabled = data.Mess;
-                data.Mess = !isEnabled;
-                var Mess = isEnabled ? "禁用" : "启用";
-                args.Player.SendSuccessMessage(GetString($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:{Mess}]"));
+                data.Mess = !data.Mess;
+                args.Player.SendSuccessMessage(data.Mess ?
+                    GetString($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:启用]") :
+                    GetString($"玩家 [{args.Player.Name}] 的自动清理消息已[c/92C5EC:禁用]"));
                 AutoAirItem.DB.UpdateData(data); // 更新数据库
                 return;
             }
