@@ -75,7 +75,8 @@ public class Commands
         {
             foreach (var plr in plrs)
             {
-                args.Player.SendMessage(GetString($"[c/32CEB7:{plr.Index}.][c/F3E83B:{plr.Name}:] {string.Join(", ", plr.ExcessItems.Select(item => $"{item.ItemName}([c/92C5EC:{item.Count}])"))}"), 193, 223, 186);
+                args.Player.SendMessage(GetString($"[c/32CEB7:{plr.Index}.][c/F3E83B:{plr.Name}:] " +
+                    $"{string.Join(", ", plr.ExcessItems.Select(item => $"{item.ItemName}([c/92C5EC:{item.Count}])"))}"), 193, 223, 186);
             }
         }
         else
@@ -220,6 +221,8 @@ public class Commands
                         // 返还被清理的物品（字典存在玩家自己的数据里，键=物品ID，值则是在这个ID下的物品数量）
                         var del = data.DelItem.FirstOrDefault(x => x.Key == item.type);
 
+                        args.Player.SendSuccessMessage(GetString("已从垃圾桶移出:[c/DEFF7D:{1}]个[c/92C5EC:{0}]"), item.Name, del.Value);
+
                         //从找到的ID里判断:值大于堆叠数
                         if (del.Value > item.maxStack)
                         {
@@ -255,7 +258,6 @@ public class Commands
 
                         data.DelItem.Remove(del.Key);
                         data.ItemType.Remove(item.type);
-                        args.Player.SendSuccessMessage(GetString("已成功从垃圾桶移出物品: [c/92C5EC:{0}]!"), item.Name);
                         AutoAirItem.DB.UpdateData(data); // 更新数据库
                         break;
                     }

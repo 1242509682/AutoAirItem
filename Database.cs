@@ -32,13 +32,6 @@ namespace AutoAirItem
         }
         #endregion
 
-        #region 创建数据
-        public MyData.PlayerData CreateData(string plrName)
-        {
-            return new MyData.PlayerData(name: plrName);
-        }
-        #endregion
-
         #region 更新数据
         public bool UpdateData(MyData.PlayerData data)
         {
