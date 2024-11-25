@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.Sqlite;
-using Terraria;
+﻿using Terraria;
 using Terraria.ID;
 using TerrariaApi.Server;
 using TShockAPI;
@@ -13,12 +12,12 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 2, 2);
+    public override Version Version => new Version(1, 2, 3);
     public override string Description => "自动垃圾桶";
     #endregion
 
     #region 实例变量
-    public static Database DB = new Database(new SqliteConnection("Data Source=" + Database.Path));
+    public static Database DB = new();
     internal static Configuration Config = new();
     internal static MyData Data = new();
     #endregion
