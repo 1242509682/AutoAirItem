@@ -1,7 +1,7 @@
 # AutoAirItem 自动垃圾桶插件
 
 - 作者: 羽学
-- 出处: 无
+- 出处: [Github](https://github.com/1242509682/AutoAirItem)
 - Tshock版自动垃圾桶，帮助玩家清理自身垃圾的小插件
 - 由玩家使用指令独立运行的插件，无需服主写配置，
 - 它会自动根据玩家加入服务器自动创建配置结构。
@@ -111,20 +111,9 @@ v1.0.0
 | /air clear | /垃圾 clear |   AutoAir.use    |    清空自己的垃圾桶表   |
 | /air mess  | /垃圾 mess |   AutoAir.use    |    开启或关闭清理消息    |
 | /air ck 数量 | /垃圾 ck 数量 |   AutoAir.use    |    筛选出物品超过此数量的玩家    |
-| /air add 或 del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    添加或移出自己的垃圾桶物品    |
-| /air reset | /重置垃圾桶 |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
+| /air del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    从垃圾桶取出物品    |
+| /air reset | 无 |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
 | /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
-
----
-注意事项
----
-1.`如何给玩家添加权限`请使用该指令在控制台发送：  `/group addperm default AutoAir.use`
-  
-2.`垃圾桶开关`与`垃圾桶物品`和均由玩家游戏内指令触发！
-
-3.`玩家数据表`由玩家加入服务器后`自动写入`
-
-4.`监听垃圾桶`使用指令`/air auto`开启，当垃圾桶位格放入物品时自动添加垃圾桶表内
 
 ## 配置
 

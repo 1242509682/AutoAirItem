@@ -40,12 +40,12 @@ public class Commands
                 {
                     if (data.Enabled)
                     {
-                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:启用]自动垃圾桶功能。");
+                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:关闭]自动垃圾桶功能。");
                         data.Enabled = false;
                     }
                     else
                     {
-                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:禁用]自动垃圾桶功能。");
+                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:启用]自动垃圾桶功能。");
                         data.Enabled = true;
                     }
 
@@ -63,11 +63,17 @@ public class Commands
 
                 if (args.Parameters[0].ToLower() == "mess")
                 {
-                    data.Mess = !data.Mess;
-                    plr.SendSuccessMessage(data.Mess ?
-                        $"玩家 [{plr.Name}] 的自动清理消息已[c/92C5EC:启用]" :
-                        $"玩家 [{plr.Name}] 的自动清理消息已[c/92C5EC:禁用]");
-                    AutoAirItem.DB.UpdateData(data); // 更新数据库
+                    if (data.Mess)
+                    {
+                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:关闭]垃圾桶提示功能。");
+                        data.Mess = false;
+                    }
+                    else
+                    {
+                        plr.SendSuccessMessage($"玩家 [{plr.Name}] 已[c/92C5EC:开启]垃圾桶提示功能。");
+                        data.Mess = true;
+                    }
+                    DB.UpdateData(data); // 更新数据库
                     return;
                 }
             }
@@ -193,6 +199,7 @@ public class Commands
                     "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
                     "/air del 名字 —— 将物品从自动垃圾桶[c/F19092:取出]\n" +
                     "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
+                    "/air ck 数量 —— 筛选出物品超过此数量的玩家\n" +
                     "/air mess —— 开启|关闭[c/F2F292:清理消息]", 193, 223, 186);
 
                 if (!data.Enabled)
