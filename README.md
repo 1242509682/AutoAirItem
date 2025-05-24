@@ -111,7 +111,7 @@ v1.0.0
 | /air clear | /垃圾 clear |   AutoAir.use    |    清空自己的垃圾桶表   |
 | /air mess  | /垃圾 mess |   AutoAir.use    |    开启或关闭清理消息    |
 | /air ck 数量 | /垃圾 ck 数量 |   AutoAir.use    |    筛选出物品超过此数量的玩家    |
-| /air add 或 del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    添加或移出自己的垃圾桶物品    |
+| /air del id  | /垃圾 del 物品名|   AutoAir.use    |    从垃圾桶取出物品    |
 | /air reset | /重置垃圾桶 |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
 | /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
 
