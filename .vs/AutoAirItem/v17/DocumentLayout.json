@@ -7,6 +7,10 @@
       "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:autoairitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|d:\\\u6E38\u620F\\terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\configuration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:configuration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|d:\\\u6E38\u620F\\terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\database.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:database.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -15,12 +19,12 @@
       "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:commands.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|d:\\\u6E38\u620F\\terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\configuration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:configuration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|d:\\\u6E38\u620F\\terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\mydata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:mydata.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|d:\\\u6E38\u620F\\terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}",
+      "RelativeMoniker": "D:0:0:{0EC057F9-C96B-4A85-ACA2-2DFDE9875E4D}|AutoAirItem.csproj|solutionrelative:readme.md||{EFC0BB08-EA7D-40C6-A696-C870411A895B}"
     }
   ],
   "DocumentGroupContainers": [
@@ -33,10 +37,6 @@
           "SelectedChildIndex": 3,
           "Children": [
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "MyData.cs",
@@ -44,21 +44,28 @@
               "RelativeDocumentMoniker": "MyData.cs",
               "ToolTip": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\MyData.cs",
               "RelativeToolTip": "MyData.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAABZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T04:35:31.429Z"
+              "WhenOpened": "2025-05-24T04:35:31.429Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "Commands.cs",
               "DocumentMoniker": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\Commands.cs",
               "RelativeDocumentMoniker": "Commands.cs",
               "ToolTip": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\Commands.cs",
               "RelativeToolTip": "Commands.cs",
-              "ViewState": "AgIAAO0AAAAAAAAAAAAAABEAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T03:20:25.747Z"
+              "WhenOpened": "2025-05-24T03:20:25.747Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -68,14 +75,26 @@
               "RelativeDocumentMoniker": "AutoAirItem.cs",
               "ToolTip": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\AutoAirItem.cs",
               "RelativeToolTip": "AutoAirItem.cs",
-              "ViewState": "AgIAAIMAAAAAAAAAAAAswJgAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAIsAAAAAAAAAAAAAAKsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-24T03:08:37.068Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 5,
+              "Title": "README.md",
+              "DocumentMoniker": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\README.md",
+              "RelativeDocumentMoniker": "README.md",
+              "ToolTip": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\README.md",
+              "RelativeToolTip": "README.md",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001818|",
+              "WhenOpened": "2025-05-24T09:59:14.093Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "Configuration.cs",
               "DocumentMoniker": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\Configuration.cs",
               "RelativeDocumentMoniker": "Configuration.cs",
@@ -83,19 +102,21 @@
               "RelativeToolTip": "Configuration.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T03:08:23.299Z"
+              "WhenOpened": "2025-05-24T03:08:23.299Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Database.cs",
               "DocumentMoniker": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\Database.cs",
               "RelativeDocumentMoniker": "Database.cs",
               "ToolTip": "D:\\\u6E38\u620F\\Terraria\\\u670D\u52A1\u5668\\\u63D2\u4EF6\u6E90\u7801\\\u3010\u6E90\u7801\u3011\u81EA\u52A8\u5783\u573E\u6876 v1.2.4 fix\\Database.cs",
               "RelativeToolTip": "Database.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-24T03:06:04.283Z"
+              "WhenOpened": "2025-05-24T03:06:04.283Z",
+              "EditorCaption": ""
             }
           ]
         }

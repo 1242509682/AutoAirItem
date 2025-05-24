@@ -15,7 +15,10 @@ internal class Configuration
     [JsonProperty("保存数据", Order = -14)]
     public bool SaveDatabase { get; set; } = true;
 
-    [JsonProperty("排除垃圾表", Order = -13)]
+    [JsonProperty("冷却秒数", Order = -13)]
+    public float FirstCoolingTime { get; set; } = 0.5f;
+
+    [JsonProperty("排除垃圾表", Order = -12)]
     public int[] Exclude = new int[] { 71,72,73,74 };
     #endregion
 
