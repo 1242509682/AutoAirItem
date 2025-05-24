@@ -10,12 +10,9 @@ internal class Configuration
     public string Text { get; set; } = "指令菜单：/air 或 /垃圾，权限名【AutoAir.use】，给玩家权限：/group addperm default AutoAir.use";
 
     [JsonProperty("插件开关", Order = -15)]
-    public bool Open { get; set; } = true;
+    public bool Enabled { get; set; } = true;
 
-    [JsonProperty("重启服务器不删数据", Order = -14)]
-    public bool Db { get; set; } = true;
-
-    [JsonProperty("排除垃圾表", Order = -13)]
+    [JsonProperty("排除垃圾表", Order = -14)]
     public int[] Exclude = new int[] { 71,72,73,74 };
     #endregion
 

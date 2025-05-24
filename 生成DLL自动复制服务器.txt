@@ -1,4 +1,3 @@
 copy bin\Release\net6.0\AutoAirItem.dll C:\Users\羽学\Desktop\Beta\ServerPlugins
 del C:\Users\羽学\Desktop\Beta\tshock\自动垃圾桶.json
 taskkill /F /IM TShock.Server.exe
-del C:\Users\羽学\Desktop\Beta\tshock\自动垃圾桶.sqlite

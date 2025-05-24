@@ -10,6 +10,6 @@
       <Compile Remove="C:\Users\羽学\.nuget\packages\tshock\5.2.0\contentFiles\any\net6.0\TrashItemData.cs" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="TShock" Version="5.2.0" />
+      <PackageReference Include="TShock" Version="5.2.4" />
     </ItemGroup>
 </Project>
