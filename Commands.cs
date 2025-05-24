@@ -167,7 +167,6 @@ public class Commands
                 if (data != null)
                 {
                     plr.SendInfoMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
-                    "/air —— 查看垃圾桶菜单\n" +
                     "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
                     "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
                     "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
@@ -194,7 +193,6 @@ public class Commands
             if (data != null)
             {
                 plr.SendInfoMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
-                    "/air —— 查看垃圾桶菜单\n" +
                     "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
                     "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
                     "/air del 名字 —— 将物品从自动垃圾桶[c/F19092:取出]\n" +
