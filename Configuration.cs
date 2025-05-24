@@ -12,7 +12,10 @@ internal class Configuration
     [JsonProperty("插件开关", Order = -15)]
     public bool Enabled { get; set; } = true;
 
-    [JsonProperty("排除垃圾表", Order = -14)]
+    [JsonProperty("保存数据", Order = -14)]
+    public bool SaveDatabase { get; set; } = true;
+
+    [JsonProperty("排除垃圾表", Order = -13)]
     public int[] Exclude = new int[] { 71,72,73,74 };
     #endregion
 

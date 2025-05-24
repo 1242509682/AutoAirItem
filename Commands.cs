@@ -10,7 +10,7 @@ public class Commands
     public static void AirCmd(CommandArgs args)
     {
         var plr = args.Player;
-        var data = DB.GetData(plr.Name);
+        var data = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
 
         if (!AutoAirItem.Config.Enabled)
         {
@@ -27,15 +27,6 @@ public class Commands
         {
             if (data != null)
             {
-                if (args.Parameters[0].ToLower() == "list")
-                {
-                    plr.SendInfoMessage($"[{data.Name}的垃圾桶]\n" +
-                        string.Join(", ", data.TrashList.Select(x =>
-                        Lang.GetItemName(x.Key) + "([c/92C5EC:{0}])".SFormat(x.Value))));
-
-                    return;
-                }
-
                 if (args.Parameters[0].ToLower() == "on")
                 {
                     if (data.Enabled)
@@ -49,7 +40,15 @@ public class Commands
                         data.Enabled = true;
                     }
 
-                    AutoAirItem.DB.UpdateData(data); // 更新数据库
+                    DB.UpdateData(data); // 更新数据库
+                    return;
+                }
+
+                if (args.Parameters[0].ToLower() == "list")
+                {
+                    var text = string.Join(", ", data.TrashList.Select(x =>
+                    Lang.GetItemName(x.Key) + "([c/92C5EC:{0}])".SFormat(x.Value)));
+                    plr.SendInfoMessage($"[{data.Name}的垃圾桶]\n" + text);
                     return;
                 }
 
@@ -57,7 +56,7 @@ public class Commands
                 {
                     data.TrashList.Clear();
                     plr.SendSuccessMessage($"已清理[c/92C5EC: {plr.Name} ]的自动垃圾桶表");
-                    AutoAirItem.DB.UpdateData(data); // 更新数据库
+                    DB.UpdateData(data); // 更新数据库
                     return;
                 }
 
@@ -128,7 +127,7 @@ public class Commands
                             }
 
                             data.TrashList.Remove(TrashItem.Key);
-                            AutoAirItem.DB.UpdateData(data); // 更新数据库
+                            DB.UpdateData(data); // 更新数据库
                         }
                         break;
                     }
@@ -219,7 +218,8 @@ public class Commands
         }
         else
         {
-            AutoAirItem.DB.ClearData();
+            Data.Items.Clear(); // 清空内存数据
+            DB.ClearData();
             args.Player.SendSuccessMessage($"已[c/92C5EC:清空]所有玩家《自动垃圾桶》数据！");
         }
     }
