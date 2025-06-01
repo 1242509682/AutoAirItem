@@ -22,6 +22,7 @@ public class Database
             new SqlColumn("Name", MySqlDbType.TinyText) { NotNull = true }, // 非空字符串列
             new SqlColumn("Enabled", MySqlDbType.Int32) { DefaultValue = "0" }, // bool值列
             new SqlColumn("Mess", MySqlDbType.Int32) { DefaultValue = "1" }, // bool值列
+            new SqlColumn("ExcluItem", MySqlDbType.Text), // 文本列，用于存储序列化的移除物品字典
             new SqlColumn("TrashList", MySqlDbType.Text) // 文本列，用于存储序列化的移除物品字典
         ));
     }
@@ -31,17 +32,18 @@ public class Database
     public bool UpdateData(MyData.PlayerData data)
     {
         var trashList = JsonSerializer.Serialize(data.TrashList);
+        var excluItem = JsonSerializer.Serialize(data.ExcluItem);
 
         // 更新现有记录
-        if (TShock.DB.Query("UPDATE AutoTrash SET Enabled = @0, Mess = @1, TrashList = @2 WHERE Name = @3",
-            data.Enabled ? 1 : 0, data.Mess ? 1 : 0, trashList, data.Name) != 0)
+        if (TShock.DB.Query("UPDATE AutoTrash SET Enabled = @0, Mess = @1, TrashList = @2, ExcluItem = @3 WHERE Name = @4",
+            data.Enabled ? 1 : 0, data.Mess ? 1 : 0, trashList, excluItem, data.Name) != 0)
         {
             return true;
         }
 
         // 如果没有更新到任何记录，则插入新记录
-        return TShock.DB.Query("INSERT INTO AutoTrash (Name, Enabled, Mess, TrashList) VALUES (@0, @1, @2, @3)",
-            data.Name, data.Enabled ? 1 : 0, data.Mess ? 1 : 0, trashList) != 0;
+        return TShock.DB.Query("INSERT INTO AutoTrash (Name, Enabled, Mess, TrashList, ExcluItem) VALUES (@0, @1, @2, @3, @4)",
+            data.Name, data.Enabled ? 1 : 0, data.Mess ? 1 : 0, trashList, excluItem) != 0;
     }
     #endregion
 
@@ -58,7 +60,8 @@ public class Database
                 name: reader.Get<string>("Name"),
                 enabled: reader.Get<int>("Enabled") == 1,
                 mess: reader.Get<int>("Mess") == 1,
-                trashList: JsonSerializer.Deserialize<Dictionary<int, int>>(reader.Get<string>("TrashList"))!
+                trashList: JsonSerializer.Deserialize<Dictionary<int, int>>(reader.Get<string>("TrashList"))!,
+                excluItem: JsonSerializer.Deserialize<HashSet<int>>(reader.Get<string>("ExcluItem") ?? "[]")!
             ));
         }
 

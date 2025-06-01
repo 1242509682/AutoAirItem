@@ -20,12 +20,16 @@ public class MyData
         //移除物品的字典
         public Dictionary<int, int> TrashList { get; set; } = new Dictionary<int, int>();
 
-        public PlayerData(string name = "", bool enabled = true, bool mess = true, Dictionary<int, int> trashList = null!)
+        //排除物品的集合
+        public HashSet<int> ExcluItem { get; set; } = new HashSet<int>();
+
+        public PlayerData(string name = "", bool enabled = true, bool mess = true, Dictionary<int, int> trashList = null!, HashSet<int> excluItem = null!)
         {
             this.Name = name ?? "";
             this.Enabled = enabled;
             this.Mess = mess;
             this.TrashList = trashList;
+            this.ExcluItem = excluItem ?? new HashSet<int>();
         }
     }
     #endregion

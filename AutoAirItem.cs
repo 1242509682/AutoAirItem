@@ -12,7 +12,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 2, 4);
+    public override Version Version => new Version(1, 2, 5);
     public override string Description => "自动垃圾桶,只在SSC开启时有效";
     #endregion
 
@@ -120,8 +120,8 @@ public class AutoAirItem : TerrariaPlugin
         //获取玩家垃圾桶格子
         var trash = plr.TPlayer.trashItem;
 
-        //排除钱币
-        if (Config.Exclude.Contains(trash.type))
+        //排除钱币 与 玩家自己指定排除物品
+        if (Config.Exclude.Contains(trash.type) || data.ExcluItem.Contains(trash.type))
         {
             return;
         }

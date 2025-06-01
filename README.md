@@ -9,6 +9,10 @@
 
 ## 更新日志
 ```
+v1.2.5
+加入了/air add指令，通过手上物品添加到排除检测表
+使用/air clear会同时清理排除检测表与垃圾桶表
+
 v1.2.4
 插件版本已适配TShock 5.2.4
 优化代码性能，从PlayerSolt事件中直接处理物品
@@ -113,7 +117,8 @@ v1.0.0
 | /air clear | /垃圾 clear |   AutoAir.use    |    清空自己的垃圾桶表   |
 | /air mess  | /垃圾 mess |   AutoAir.use    |    开启或关闭清理消息    |
 | /air ck 数量 | /垃圾 ck 数量 |   AutoAir.use    |    筛选出物品超过此数量的玩家    |
-| /air del id  | /垃圾 add 或 del 物品名|   AutoAir.use    |    从垃圾桶取出物品    |
+| /air add  | /垃圾 add |   AutoAir.use    |    将手上物品排除出垃圾桶检测    |
+| /air del id  | /垃圾 del 物品名|   AutoAir.use    |    从垃圾桶取出物品    |
 | /air reset | 无 |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
 | /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
 

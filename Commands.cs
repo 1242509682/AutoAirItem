@@ -44,6 +44,27 @@ public class Commands
                     return;
                 }
 
+                if (args.Parameters[0].ToLower() == "add")
+                {
+                    var sel = plr.SelectedItem;
+                    if (plr.SelectedItem == null || plr.SelectedItem.type <= 0 || plr.SelectedItem.IsAir) // 判断是否是无效物品
+                    {
+                        plr.SendErrorMessage("你手上没有物品！");
+                        return;
+                    }
+
+                    if (data.ExcluItem.Contains(sel.type))
+                    {
+                        plr.SendErrorMessage($"物品 [i/s{1}:{sel.type}] 已在排除列表中!");
+                        return;
+                    }
+
+                    data.ExcluItem.Add(sel.type);
+                    DB.UpdateData(data); // 更新数据库
+                    plr.SendSuccessMessage($"已将物品 [i/s{1}:{sel.type}] 添加到排除列表中。");
+                    return;
+                }
+
                 if (args.Parameters[0].ToLower() == "list")
                 {
                     var text = string.Join(", ", data.TrashList.Select(x =>
@@ -55,6 +76,7 @@ public class Commands
                 if (args.Parameters[0].ToLower() == "clear")
                 {
                     data.TrashList.Clear();
+                    data.ExcluItem.Clear();
                     plr.SendSuccessMessage($"已清理[c/92C5EC: {plr.Name} ]的自动垃圾桶表");
                     DB.UpdateData(data); // 更新数据库
                     return;
@@ -171,6 +193,7 @@ public class Commands
                     "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
                     "/air mess —— 开启|关闭[c/F2F292:清理消息]\n" +
                     "/air ck 数量—— 筛选出物品超过此数量的玩家\n" +
+                    "/air add —— 将手上物品[c/F19092:排除]出垃圾桶检测\n" +
                     "/air del 名字 —— 将物品从自动垃圾桶[c/F19092:取出]\n" +
                     "/air reset —— 清空[c/85CFDE:所有玩家]数据", 193, 223, 186);
                     if (!data.Enabled)
@@ -194,6 +217,7 @@ public class Commands
                 plr.SendInfoMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
                     "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
                     "/air list —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
+                    "/air add —— 将手上物品[c/F19092:排除]出垃圾桶检测\n" +
                     "/air del 名字 —— 将物品从自动垃圾桶[c/F19092:取出]\n" +
                     "/air clear —— [c/85CEDF:清理]垃圾桶\n" +
                     "/air ck 数量 —— 筛选出物品超过此数量的玩家\n" +
