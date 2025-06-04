@@ -9,6 +9,19 @@
 
 ## 更新日志
 ```
+v1.2.6
+优化插件的显示方式为物品图标
+/air del 指令支持指定数量返还
+返还后会自动把该物品加到“排除检测表”中
+会提示需要手持该物品，手动使用/air add才能从“排除检测表”中移出
+当/air del 不指定数量时 则会返还物品，
+如果该物品存在“排除检测表”则从该表中删除
+也就是说/air add有2个功能“排除”和“还原”对指定物品的检测
+特别提醒：/air del 指令一直是支持使用物品名字的（所以不知道ID可以直接用名字）
+/air list指令支持显示“排除检测表”，
+/air list 与 /air ck 可以将超过最大堆叠数量的物品通过加多个图标方式显示
+加入了【一行显示多少个物品】配置项，用于控制list与ck指令的显示图标（默认7个一行）
+
 v1.2.5
 加入了/air add指令，通过手上物品添加到排除检测表
 使用/air clear会同时清理排除检测表与垃圾桶表
@@ -113,13 +126,14 @@ v1.0.0
 | -------------------------------- | :---: | :--------------: | :--------------------------------------: |
 | /air  | /垃圾 |   AutoAir.use    |    指令菜单    |
 | /air on  | /垃圾 on |   AutoAir.use    |    开启或关闭自身的垃圾桶功能    |
-| /air list  | /垃圾 list |   AutoAir.use    |    列出自己的垃圾桶物品名    |
-| /air clear | /垃圾 clear |   AutoAir.use    |    清空自己的垃圾桶表   |
-| /air mess  | /垃圾 mess |   AutoAir.use    |    开启或关闭清理消息    |
+| /air list  | /垃圾 l |   AutoAir.use    |    列出自己的垃圾桶物品名    |
+| /air clear | /垃圾 c |   AutoAir.use    |    清空自己的垃圾桶与排除检测表   |
+| /air mess  | /垃圾 m |   AutoAir.use    |    开启或关闭清理消息    |
 | /air ck 数量 | /垃圾 ck 数量 |   AutoAir.use    |    筛选出物品超过此数量的玩家    |
-| /air add  | /垃圾 add |   AutoAir.use    |    将手上物品排除出垃圾桶检测    |
-| /air del id  | /垃圾 del 物品名|   AutoAir.use    |    从垃圾桶取出物品    |
-| /air reset | 无 |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
+| /air add  | /垃圾 a |   AutoAir.use    |    将手上物品排除或还原到垃圾桶检测    |
+| /air del id  | /垃圾 d 物品名|   AutoAir.use    |    从垃圾桶取出全部物品    |
+| /air del id 数量  | /垃圾 d 物品名 数量|   AutoAir.use    |    从垃圾桶取出指定物品数量    |
+| /air reset | /垃圾 rs |   AutoAir.admin    |    清空玩家数据表（重置服务器用）    |
 | /reload  | 无 |   tshock.cfg.reload    |    重载配置文件    |
 
 ## 配置
@@ -128,6 +142,9 @@ v1.0.0
 {
   "插件指令权限": "指令菜单：/air 或 /垃圾，权限名【AutoAir.use】，给玩家权限：/group addperm default AutoAir.use",
   "插件开关": true,
+  "保存数据": true,
+  "冷却秒数": 0.5,
+  "一行显示多少个物品": 7,
   "排除垃圾表": [
     71,
     72,

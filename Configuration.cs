@@ -18,7 +18,10 @@ internal class Configuration
     [JsonProperty("冷却秒数", Order = -13)]
     public float FirstCoolingTime { get; set; } = 0.5f;
 
-    [JsonProperty("排除垃圾表", Order = -12)]
+    [JsonProperty("一行显示多少个物品", Order = -12)]
+    public int ListLine { get; set; } = 7;
+
+    [JsonProperty("排除垃圾表", Order = -11)]
     public int[] Exclude = new int[] { 71,72,73,74 };
     #endregion
 

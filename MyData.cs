@@ -5,7 +5,7 @@ public class MyData
     //玩家数据表
     public List<PlayerData> Items { get; set; } = new List<PlayerData>();
 
-    #region 数据结构
+    #region 玩家数据结构
     public class PlayerData
     {
         //玩家名字
@@ -17,7 +17,7 @@ public class MyData
         //自动垃圾桶的回收提示
         public bool Mess { get; set; } = true;
 
-        //移除物品的字典
+        //物品的字典
         public Dictionary<int, int> TrashList { get; set; } = new Dictionary<int, int>();
 
         //排除物品的集合

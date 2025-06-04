@@ -48,7 +48,7 @@ public class Database
     #endregion
 
     #region 加载所有数据（每次重启服务器时用于读取之前存下的数据）主要用于解决：内存清空时数据丢失的方法
-    public List<MyData.PlayerData> GetAllData()
+    public List<MyData.PlayerData> GetAll()
     {
         var data = new List<MyData.PlayerData>();
 
