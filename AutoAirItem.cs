@@ -12,7 +12,7 @@ public class AutoAirItem : TerrariaPlugin
     #region 插件信息
     public override string Name => "自动垃圾桶";
     public override string Author => "羽学";
-    public override Version Version => new Version(1, 2, 6);
+    public override Version Version => new Version(1, 2, 7);
     public override string Description => "自动垃圾桶,只在SSC开启时有效";
     #endregion
 
@@ -95,6 +95,7 @@ public class AutoAirItem : TerrariaPlugin
     {
         var plr = e.Player;
         if (!Config.Enabled || e == null || plr == null || !plr.IsLoggedIn || !plr.Active || !plr.HasPermission("AutoAir.use")) return;
+        if (plr.State != 10) return;
 
         var data = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
 
@@ -147,7 +148,6 @@ public class AutoAirItem : TerrariaPlugin
 
                 // 设置首次存储的冷却时间
                 Cooldown[plr.Name] = DateTime.UtcNow.AddSeconds(Config.FirstCoolingTime);
-                e.Handled = true;
             }
         }
 
@@ -162,13 +162,11 @@ public class AutoAirItem : TerrariaPlugin
                 {
                     plr.SendInfoMessage($"正在进行首次存储冷却中…剩余{timer:F2}秒");
                     plr.SendErrorMessage("警告:冷却时间内点击该物品,其数量不计入存储内!");
+                    plr.SendInfoMessage("请使用背包的'快捷整理'功能把相同物品一键回收");
                 }
-
                 plr.TPlayer.inventory[e.Slot].stack = 0;
                 plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, e.Slot);
-                e.Handled = true;
             }
-            return; // 冷却中，跳过回收逻辑
         }
 
         //如果格子里的物品ID在“自动垃圾桶物品表”里 并且格子里不是排除表里的物品
@@ -183,6 +181,19 @@ public class AutoAirItem : TerrariaPlugin
             data.TrashList[e.Type] += e.Stack;
             plr.TPlayer.inventory[e.Slot].stack = 0;
             plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, e.Slot);
+
+            // 如果玩家快捷键栏里有该物品,则计算到垃圾桶数量中
+            //（避免玩家使用“快捷整理”不会主动回收“快捷栏”物品的产生刷物品BUG）
+            for (int i = 0; i < 10; i++)
+            {
+                if (plr.TPlayer.inventory[i].type == e.Type)
+                {
+                    data.TrashList[e.Type] += plr.TPlayer.inventory[i].stack;
+                    plr.TPlayer.inventory[i].stack = 0; //清除背包里所有相同物品
+                    plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, i);
+                }
+            }
+
             DB.UpdateData(data); //更新玩家自己的数据库
             e.Handled = true;
         }

@@ -10,7 +10,7 @@ public class Commands
     public static void AirCmd(CommandArgs args)
     {
         var plr = args.Player;
-        var data = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
+        MyData.PlayerData? data = Data.Items.FirstOrDefault(x => x.Name == plr.Name);
 
         if (!AutoAirItem.Config.Enabled)
         {
@@ -70,6 +70,44 @@ public class Commands
                                 // 如果已在排除列表中，则移除
                                 data.ExcluItem.Remove(sel.type);
                                 plr.SendSuccessMessage($"已将物品 [i/s1:{sel.type}] 从排除列表中移除。");
+
+                                //当从排除列表中移除时，尝试将物品添加到自动垃圾桶
+                                if (data.TrashList.ContainsKey(sel.type))
+                                {
+                                    var other = new HashSet<int>();
+
+                                    for (var i = 0; i < plr.TPlayer.inventory.Length; i++)
+                                    {
+                                        var inv = plr.TPlayer.inventory[i];
+                                        if (data.TrashList.ContainsKey(inv.type) &&
+                                            !data.ExcluItem.Contains(inv.type))
+                                        {
+                                            other.Add(inv.type);
+                                            data.TrashList[inv.type] += inv.stack;
+                                            inv.TurnToAir();
+                                            plr.SendData(PacketTypes.PlayerSlot, "", plr.Index, i);
+                                        }
+                                    }
+
+                                    // 将物品ID转换为图标字符串
+                                    var icons = other
+                                        .OrderBy(id => id)
+                                        .Select(id => $"[i/s1:{id}]")
+                                        .ToList();
+
+                                    // 按每行数量分组显示（使用 Config.ListLine）
+                                    var chunks = icons
+                                        .Select((icon, index) => new { icon, index })
+                                        .GroupBy(x => x.index / Config.ListLine)
+                                        .Select(g => string.Join(" ", g.Select(x => x.icon)));
+
+                                    var text = string.Join("\n", chunks);
+
+                                    if (!string.IsNullOrEmpty(text))
+                                    {
+                                        plr.SendMessage($"同时回收物品:\n{text}", 240, 250, 150);
+                                    }
+                                }
                             }
                             else
                             {
@@ -85,59 +123,40 @@ public class Commands
                     case "l":
                     case "list":
                         {
-                            // 初始化一个空物品，防止 maxStack == 0
-                            var item = new Item();
-                            item.SetDefaults(0);
                             var trash = data.TrashList;
                             if (trash.Count == 0)
                             {
-                                plr.SendErrorMessage($"[{data.Name}的垃圾桶] 中没有任何物品。");
+                                plr.SendErrorMessage($"\n[{data.Name}的垃圾桶] 中没有任何物品。");
                                 return;
                             }
 
-                            var icons = new List<string>();
-                            foreach (var t in trash.OrderBy(k => k.Key))
-                            {
-                                // 获取该物品的最大堆叠数量
-                                Item item2 = new Item();
-                                item2.SetDefaults(t.Key);
-                                int myStack = item2.maxStack > 0 ? item2.maxStack : item.maxStack;
+                            var item = new Item();
+                            item.SetDefaults(0);
+                            int MaxStack = item.maxStack;
 
-                                for (int i = 0; i < t.Value / myStack; i++)
-                                {
-                                    icons.Add($"[i/s{myStack}:{t.Key}]");
-                                }
+                            // 生成垃圾桶图标（现在加上索引）
+                            var icons = trash
+                                .OrderBy(k => k.Key)
+                                .Select((pair, index) => new { Icon = GetItemIcons(pair.Key, pair.Value, MaxStack), Index = index + 1 })
+                                .SelectMany(x => x.Icon.Select(icon => $"[c/A0CAEB:{x.Index}.]{icon}")) // 每个图标前加索引
+                                .ToList();
 
-                                if (t.Value % myStack > 0)
-                                {
-                                    icons.Add($"[i/s{t.Value % myStack}:{t.Key}]");
-                                }
-                            }
+                            SendFormattedList(plr, icons, $"{data.Name}的垃圾桶", Config.ListLine);
 
-                            // 自动垃圾桶每行显示最多 7 个图标
-                            var chunks = icons
-                                .Select((icon, index) => new { icon, index })
-                                .GroupBy(x => x.index / Config.ListLine)
-                                .Select(g => string.Join("  ", g.Select(x => x.icon)));
-
-                            var text = string.Join("\n", chunks);
-
-                            plr.SendInfoMessage($"[{data.Name}的垃圾桶]\n" + text);
-
+                            // 如果存在排除列表，则发送
                             if (data.ExcluItem != null && data.ExcluItem.Any())
                             {
-                                // 排除表每行显示最多 7 个图标
-                                var chunks2 = data.ExcluItem
-                                    .OrderBy(id => id) // 可选：按ID排序
-                                    .Select((id, index) => new { id, index })
-                                    .GroupBy(x => x.index / Config.ListLine)
-                                    .Select(g => g.Select(x => $"[i/s1:{x.id}]").ToList())
+                                var excluIcons = data.ExcluItem
+                                    .OrderBy(id => id)
+                                    .Select(id => $"[i/s1:{id}]")
                                     .ToList();
 
-                                var lines = chunks2.Select(group => string.Join(" ", group));
-                                string message = $"[{data.Name}的排除表]\n" + string.Join("\n", lines);
-                                plr.SendInfoMessage(message);
+                                SendFormattedList(plr, excluIcons, $"{data.Name}的排除表", Config.ListLine);
                             }
+
+
+                            plr.SendMessage($"\n指定[c/FF8292:序号]取出全部:/air d [c/C497F7:序号] [c/C497F7:-i]", 240, 250, 150);
+                            plr.SendMessage($"指定[c/FF8292:序号]取出数量:/air d [c/C497F7:序号] 数量 [c/C497F7:-i]", 240, 250, 150);
                             break;
                         }
 
@@ -242,26 +261,31 @@ public class Commands
             {
                 if (data != null)
                 {
-                    plr.SendInfoMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
-                    "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
-                    "/air l —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
-                    "/air c —— [c/85CEDF:清理]垃圾桶\n" +
-                    "/air m —— 开启|关闭[c/F2F292:清理消息]\n" +
-                    "/air ck 数量—— 筛选出物品超过此数量的玩家\n" +
-                    "/air a —— 将手上物品[c/F19092:排除]或[c/F2F292:还原]到检测\n" +
-                    "/air d 名字 —— 从自动垃圾桶[c/F19092:全部取出]\n" +
-                    "/air d 名字 数量 —— 从垃圾桶[c/F19092:取出指定数量]\n" +
-                    "/air rs —— 清空[c/85CFDE:所有玩家]数据", 193, 223, 186);
+                    plr.SendMessage("《自动垃圾桶》 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
+                    "/air on —— 开启|关闭[c/EA9944:垃圾桶]功能\n" +
+                    "/air l —— [c/AEEBE9:列出]自己的[c/F2F191:垃圾桶]\n" +
+                    "/air m —— 开启|关闭[c/76A4CF:清理消息]\n" +
+                    "/air a —— 将手上物品[c/DB4057:排除]或[c/77D1B2:还原]到检测\n" +
+                    "/air d 名字 —— 从自动垃圾桶[c/8AD278:全部取出]\n" +
+                    "/air d 名字 数量 —— 从垃圾桶[c/F2F292:取出指定数量]\n" +
+                    "/air c —— [c/85CEDF:清空]垃圾桶与回收[c/DB4057:排除表]\n" +
+                    "/air ck 数量 —— 筛选物品超过[c/D278BD:此数量]的玩家\n" +
+                    "/air rs —— 清空[c/85CFDE:所有玩家]数据", 220, 180, 186);
                     if (!data.Enabled)
                     {
                         plr.SendSuccessMessage($"请输入该指令开启→: [c/92C5EC:/air on] ");
+                    }
+
+                    if (!TShock.ServerSideCharacterConfig.Settings.Enabled)
+                    {
+                        plr.SendErrorMessage($"本插件需要开启SSC强制开荒才会回收物品");
                     }
                 }
             }
             else
             {
-                plr.SendInfoMessage("【自动垃圾桶】指令菜单\n" +
-                    "/air ck 数量—— 筛选出物品超过此数量的玩家\n" +
+                plr.SendMessage("《自动垃圾桶》控制台可用指令\n" +
+                    "/air ck 数量—— 筛选物品超过[c/D278BD:此数量]的玩家\n" +
                     "/air rs —— 清空[c/85CFDE:所有玩家]数据", 193, 223, 186);
                 plr.SendSuccessMessage($"其余指令需要您进入游戏内才会显示");
             }
@@ -270,15 +294,16 @@ public class Commands
         {
             if (data != null)
             {
-                plr.SendInfoMessage("【自动垃圾桶】指令菜单 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
-                    "/air on —— 开启|关闭[c/89DF85:垃圾桶]功能\n" +
-                    "/air l —— [c/F19092:列出]自己的[c/F2F191:垃圾桶]\n" +
-                    "/air a —— 将手上物品[c/F19092:排除]或[c/F2F292:还原]到检测\n" +
-                    "/air d 名字 —— 从自动垃圾桶[c/F19092:全部取出]\n" +
-                    "/air d 名字 数量 —— 从垃圾桶[c/F19092:取出指定数量]\n" +
-                    "/air c —— [c/85CEDF:清理]垃圾桶\n" +
-                    "/air ck 数量 —— 筛选出物品超过此数量的玩家\n" +
-                    "/air m —— 开启|关闭[c/F2F292:清理消息]", 193, 223, 186);
+                plr.SendMessage("《自动垃圾桶》 [i:3456][C/F2F2C7:插件开发] [C/BFDFEA:by] [c/00FFFF:羽学][i:3459]\n" +
+                    "/air on —— 开启|关闭[c/EA9944:垃圾桶]功能\n" +
+                    "/air l —— [c/AEEBE9:列出]自己的[c/F2F191:垃圾桶]\n" +
+                    "/air m —— 开启|关闭[c/76A4CF:清理消息]\n" +
+                    "/air a —— 将手上物品[c/DB4057:排除]或[c/77D1B2:还原]到检测\n" +
+                    "/air d 名字 —— 从自动垃圾桶[c/8AD278:全部取出]\n" +
+                    "/air d 名字 数量 —— 从垃圾桶[[c/F2F292:取出指定数量]\n" +
+                    "/air c —— [c/85CEDF:清空]垃圾桶与回收[c/DB4057:排除表]\n" +
+                    "/air ck 数量 —— 筛选物品超过[c/D278BD:此数量]的玩家\n" +
+                    "/air m —— 开启|关闭[c/F2F292:清理消息]", 220, 180, 186);
 
                 if (!data.Enabled)
                 {
@@ -289,136 +314,69 @@ public class Commands
     }
     #endregion
 
-    #region 重置数据方法
-    public static void Reset(CommandArgs args)
-    {
-        if (!args.Player.HasPermission("AutoAir.admin"))
-        {
-            args.Player.SendErrorMessage("你没有权限使用此指令！");
-            return;
-        }
-        else
-        {
-            Data.Items.Clear(); // 清空内存数据
-            DB.ClearData();
-            args.Player.SendSuccessMessage($"已[c/92C5EC:清空]所有玩家《自动垃圾桶》数据！");
-        }
-    }
-    #endregion
-
     #region 检查物品数量方法（玩家版）
     public static void CheckCmd(CommandArgs args, int num)
     {
         var plr = args.Player;
-        var index = 1;
 
-        // 初始化空物品获取最大堆叠值
-        var item2 = new Item();
-        item2.SetDefaults(0);
+        // 获取默认最大堆叠数
+        var defaultItem = new Item();
+        defaultItem.SetDefaults(0);
+        int defaultMaxStack = defaultItem.maxStack;
 
-        plr.SendInfoMessage($"以下垃圾物品数量超过【[c/92C5EC:{num}]】的玩家");
-        var ItemList = new List<(int Index, string Name, List<string> Icons)>(); // 把 TrashList 改为 Icons 字符串列表
-
-        var db = AutoAirItem.DB.GetAll(); // 调用数据库查询方法
-        foreach (var data in db)
+        // 构建图标条目
+        var ItemList = BuildItemList(data =>
         {
             var findStart = data.TrashList.Where(pair => pair.Value >= num).ToList();
+            if (!findStart.Any()) return new List<string>();
 
-            if (!findStart.Any()) continue;
-
-            // 拆分为多个图标
             var icons = new List<string>();
             foreach (var t in findStart)
             {
-                // 获取该物品的最大堆叠（兜底使用全局默认）
                 Item item = new Item();
                 item.SetDefaults(t.Key);
-                int myStack = item.maxStack > 0 ? item.maxStack : item2.maxStack;
+                int myStack = item.maxStack > 0 ? item.maxStack : defaultMaxStack;
 
-                for (int i = 0; i < t.Value / myStack; i++)
+                int fullStacks = t.Value / myStack;
+                int remainder = t.Value % myStack;
+
+                for (int i = 0; i < fullStacks; i++)
                     icons.Add($"[i/s{myStack}:{t.Key}]");
 
-                if (t.Value % myStack > 0)
-                    icons.Add($"[i/s{t.Value % myStack}:{t.Key}]");
+                if (remainder > 0)
+                    icons.Add($"[i/s{remainder}:{t.Key}]");
             }
 
-            if (icons.Count > 0)
-            {
-                ItemList.Add((index++, data.Name, icons));
-            }
-        }
+            return icons;
+        });
 
-        if (ItemList.Count > 0)
-        {
-            foreach (var p in ItemList)
-            {
-                // 每7个图标换行
-                var chunks = p.Icons
-                    .Select((icon, idx) => new { icon, idx })
-                    .GroupBy(x => x.idx / Config.ListLine)
-                    .Select(g => string.Join("  ", g.Select(x => x.icon)));
-
-                var mess = $"\n[c/32CEB7:{p.Index}.][c/F3E83B:{p.Name}:]\n" + string.Join("\n", chunks);
-                plr.SendMessage(mess, 193, 223, 186);
-            }
-        }
-        else
-        {
-            plr.SendMessage($"没有找到垃圾数量超过[c/92C5EC:{num}]的玩家", 193, 223, 186);
-        }
+        SendFormattedMessage(plr, ItemList,
+            Config.ListLine, (icon) => icon, $"以下垃圾物品数量超过【[c/76A4CF:{num}]】的玩家",
+            (index, name) => $"\n([c/A0EBD3:{index}]).[c/F5677A:{name}:]",
+            (r, g, b) => (r: 193, g: 223, b: 186));
     }
-
-
     #endregion
 
     #region 检查物品数量方法 (控制台优化版)
     public static void CheckCmd2(CommandArgs args, int num)
     {
         var plr = args.Player;
-        var index = 1;
 
-        plr.SendInfoMessage($"以下垃圾物品数量超过【{num}】的玩家");
-        var ItemList = new List<(int Index, string Name, List<string> TextEntries)>(); // 改用文本条目
-
-        var db = AutoAirItem.DB.GetAll();
-        foreach (var data in db)
+        // 构建文本条目
+        var ItemList = BuildItemList(data =>
         {
             var findStart = data.TrashList.Where(pair => pair.Value >= num).ToList();
-            if (!findStart.Any()) continue;
+            if (!findStart.Any()) return new List<string>();
 
-            //物品名称列表
-            var nameList = new List<string>();
-            foreach (var t in findStart)
-            {
-                // 获取物品名称
-                var name = Lang.GetItemNameValue(t.Key);
-                nameList.Add($"{name}({t.Value})");
-            }
+            return findStart
+                .Select(t => $"{Lang.GetItemNameValue(t.Key)}({t.Value})")
+                .ToList();
+        });
 
-            if (nameList.Count > 0)
-            {
-                ItemList.Add((index++, data.Name, nameList));
-            }
-        }
-
-        if (ItemList.Count > 0)
-        {
-            foreach (var p in ItemList)
-            {
-                // 每7个物品一行
-                var chunks = p.TextEntries
-                    .Select((item, idx) => new { item, idx })
-                    .GroupBy(x => x.idx / Config.ListLine)
-                    .Select(g => string.Join("  ", g.Select(x => x.item)));
-
-                var mess = $"\n[c/32CEB7:{p.Index}.][c/F3E83B:{p.Name}:]\n" + string.Join("\n", chunks);
-                plr.SendMessage(mess, 250, 240, 150);
-            }
-        }
-        else
-        {
-            plr.SendInfoMessage($"没有找到垃圾数量超过{num}的玩家");
-        }
+        SendFormattedMessage(plr, ItemList,
+            Config.ListLine, (entry) => entry, $"以下垃圾物品数量超过【[c/76A4CF:{num}]】的玩家\n",
+            (index, name) => $"\n[c/A0EBD3:{index}.][c/F3E83B:{name}:]",
+            (r, g, b) => (r: 250, g: 240, b: 150));
     }
     #endregion
 
@@ -428,27 +386,83 @@ public class Commands
         if (data == null) return;
 
         // 参数解析
-        string itemName = args.Parameters[1];
-        int howMuch = -1; // -1 表示全部取出
-
-        if (args.Parameters.Count == 3 && int.TryParse(args.Parameters[2], out int amount))
+        if (args.Parameters.Count < 2)
         {
-            howMuch = amount;
-        }
-
-        // 获取物品
-        var items = TShock.Utils.GetItemByIdOrName(itemName);
-        if (items.Count == 0)
-        {
-            plr.SendErrorMessage("找不到该物品，请输入正确的物品名或ID。");
+            plr.SendErrorMessage("指令格式错误。用法: /air d <物品名|ID [数量]> 或 /air d <索引> [-i] [数量]");
             return;
         }
 
-        var item = items[0];
-        int itemType = item.type;
+        bool useIndex = args.Parameters.Contains("-i");
+        int indexOrItemId;
+
+        if (!int.TryParse(args.Parameters[1], out indexOrItemId))
+        {
+            plr.SendErrorMessage("请输入有效的数字作为索引或物品ID。");
+            return;
+        }
+
+        int howMuch = -1; // 默认 -1 表示全部取出
+        int amountIndex = useIndex ? 2 : 2;
+
+        // 如果参数足够且第3个是数字，则读取为取出数量
+        if (args.Parameters.Count > amountIndex && int.TryParse(args.Parameters[amountIndex], out int parsedAmount))
+        {
+            howMuch = parsedAmount;
+        }
+
+        int itemType = -1;
+
+        if (useIndex)
+        {
+            // 索引模式
+            int index = indexOrItemId;
+
+            if (index < 1)
+            {
+                plr.SendErrorMessage("索引必须大于等于1。");
+                return;
+            }
+
+            var sortedTrash = data.TrashList.OrderBy(k => k.Key).ToList();
+
+            if (index > sortedTrash.Count)
+            {
+                plr.SendErrorMessage($"索引超出范围，当前只有 {sortedTrash.Count} 项。");
+                return;
+            }
+
+            itemType = sortedTrash[index - 1].Key;
+        }
+        else
+        {
+            // 物品名或ID模式
+            string itemNameOrId = args.Parameters[1];
+
+            if (!int.TryParse(itemNameOrId, out itemType))
+            {
+                var items = TShock.Utils.GetItemByIdOrName(itemNameOrId);
+                if (items.Count == 0)
+                {
+                    plr.SendErrorMessage("找不到该物品，请输入正确的物品名或ID。");
+                    return;
+                }
+
+                itemType = items[0].type;
+            }
+
+            if (!data.TrashList.TryGetValue(itemType, out _) || itemType <= 0)
+            {
+                plr.SendErrorMessage($"物品 [i/s1:{itemType}] 不在垃圾桶中！");
+                return;
+            }
+        }
+
+        // 获取物品 maxStack
+        var item = new Item();
+        item.SetDefaults(itemType);
         int maxStack = item.maxStack > 0 ? item.maxStack : 1;
 
-        // 检查垃圾桶是否有这个物品
+        // 获取该物品在垃圾桶中的总数
         if (!data.TrashList.TryGetValue(itemType, out int total) || total <= 0)
         {
             plr.SendErrorMessage($"物品 [i/s1:{itemType}] 不在垃圾桶中！");
@@ -458,17 +472,17 @@ public class Commands
         // 确定实际取出数量
         int toTake = howMuch == -1 ? total : Math.Min(howMuch, total);
 
-        // 初始化 ExcluItem 如果为空
+        // 初始化 ExcluItem（如果为空）
         data.ExcluItem ??= new HashSet<int>();
 
-        // 取出物品后处理
+        // 处理取出逻辑
         if (toTake == total)
         {
             data.TrashList.Remove(itemType);
             plr.SendSuccessMessage($"已从垃圾桶中取出全部:[i/s1:{itemType}]");
-           
-            if (data.ExcluItem.Contains(itemType)) 
-            { 
+
+            if (data.ExcluItem.Contains(itemType))
+            {
                 data.ExcluItem.Remove(itemType);
                 plr.SendInfoMessage($"并已将 [i/s1:{itemType}] 移出排除列表");
             }
@@ -476,6 +490,7 @@ public class Commands
         else
         {
             data.TrashList[itemType] = total - toTake;
+
             if (!data.ExcluItem.Contains(itemType))
             {
                 data.ExcluItem.Add(itemType);
@@ -506,7 +521,7 @@ public class Commands
         // 剩余数量
         int left = data.TrashList.TryGetValue(itemType, out int remaining) ? remaining : 0;
         plr.SendInfoMessage($"已取出: {icon} \n剩余: {left}个");
-    } 
+    }
     #endregion
 
     #region 使用/air del 给物品方法
@@ -519,6 +534,103 @@ public class Commands
 
         if (count % maxStack > 0)
             plr.GiveItem(itemType, count % maxStack);
-    } 
+    }
+    #endregion
+
+    #region 根据物品 ID 和数量生成多个图标（按最大堆叠分割）
+    private static List<string> GetItemIcons(int itemId, int total, int defaultMaxStack)
+    {
+        var item = new Item();
+        item.SetDefaults(itemId);
+        int maxStack = item.maxStack > 0 ? item.maxStack : defaultMaxStack;
+
+        var icons = new List<string>();
+
+        int fullStacks = total / maxStack;
+        int remainder = total % maxStack;
+
+        for (int i = 0; i < fullStacks; i++)
+            icons.Add($"[i/s{maxStack}:{itemId}]");
+
+        if (remainder > 0)
+            icons.Add($"[i/s{remainder}:{itemId}]");
+
+        return icons;
+    }
+    #endregion
+
+    #region 将图标列表分组显示并发送给玩家
+    // 将图标列表分组显示并发送给玩家
+    private static void SendFormattedList(TSPlayer plr, List<string> icons, string title, int lineSize = 7)
+    {
+        var chunks = icons
+            .Select((icon, index) => new { icon, index })
+            .GroupBy(x => x.index / lineSize)
+            .Select(g => string.Join("  ", g.Select(x => x.icon)));
+
+        var text = string.Join("\n", chunks);
+        plr.SendInfoMessage($"\n[c/F2FF9C:{title}]\n{text}");
+    }
+    #endregion
+
+    #region 构建物品列表提供给CK指令用
+    private static List<(int Index, string Name, List<string> Entries)> BuildItemList(Func<MyData.PlayerData, List<string>> itemSelector)
+    {
+        var result = new List<(int Index, string Name, List<string> Entries)>();
+        int index = 1;
+
+        foreach (var data in AutoAirItem.DB.GetAll())
+        {
+            var entries = itemSelector(data);
+            if (entries.Count > 0)
+            {
+                result.Add((index++, data.Name, entries));
+            }
+        }
+
+        return result;
+    }
+    #endregion
+
+    #region ck指令格式化信息方法
+    private static void SendFormattedMessage<T>(TSPlayer plr, List<(int Index, string Name, List<T> Entries)> playerList, int lineSize, Func<T, string> toString, string header, Func<int, string, string> formatTitle, Func<byte, byte, byte, (byte r, byte g, byte b)> getColor)
+    {
+        plr.SendInfoMessage(header);
+
+        if (playerList.Count == 0)
+        {
+            plr.SendInfoMessage($"没有找到符合条件的玩家");
+            return;
+        }
+
+        foreach (var p in playerList)
+        {
+            var chunks = p.Entries
+                .Select((item, idx) => new { item, idx })
+                .GroupBy(x => x.idx / lineSize)
+                .Select(g => string.Join("  ", g.Select(x => toString(x.item))));
+
+            var mess = formatTitle(p.Index, p.Name) + "\n" + string.Join("\n", chunks);
+            var color = getColor(0, 0, 0);
+            plr.SendMessage(mess, color.r, color.g, color.b);
+        }
+    }
+    #endregion
+
+    #region 重置数据方法
+    public static void Reset(CommandArgs args)
+    {
+        if (!args.Player.HasPermission("AutoAir.admin"))
+        {
+            args.Player.SendErrorMessage("你没有权限使用此指令！");
+            return;
+        }
+        else
+        {
+            Data.Items.Clear(); // 清空内存数据
+            DB.ClearData();
+            args.Player.SendSuccessMessage($"已[c/92C5EC:清空]所有玩家《自动垃圾桶》数据！");
+        }
+    }
     #endregion
 }
